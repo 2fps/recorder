@@ -51,8 +51,8 @@ http.createServer(function(req, res) {
             };
             
             var client = new ROAClient({
-                accessKeyId: 'LTAIeUTLr12sCAgM',
-                accessKeySecret: 'bHgMr4oLJjegKswB8Usy72zh87HHJI',
+                accessKeyId: '',            // 添加
+                accessKeySecret: '',        // 添加
                 endpoint: 'http://nls-meta.cn-shanghai.aliyuncs.com',
                 apiVersion: '2018-05-18'
             });

@@ -45,6 +45,8 @@ function transRecord (e) {
         body: formdata
     }).then(function(response) {
         return response.json();
+    }, function() {
+        alert('请添加下阿里云的id和key');
     }).then(function(data) {
         console.log(data);
     });
