@@ -1,0 +1,16 @@
+{
+  "name": "speech",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "@alicloud/pop-core": "^1.7.4",
+    "request": "^2.88.0"
+  },
+  "main": "app.js",
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

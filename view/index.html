@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>录音</title>
+    </head>
+    <body>
+        <input type="button" value="开启" onclick="startRecord()" />
+        <input type="button" value="停止" onclick="endRecord()" />
+        <input type="button" value="上传翻译" onclick="transRecord()" />
+        <input type="button" value="播放录音" onclick="playRecord()" />
+        <audio autoplay controls id="audio"></audio>
+    </body>
+<script src="recorder.js"></script>
+<script>
+var oDiv = document.getElementById('box'),
+    audio = document.getElementById('audio'),
+    recorder = null;
+
+function startRecord() {
+    if (!recorder) {
+        recorder = new Recorder();
+        recorder.ready().then(() => {
+            recorder.start();
+        });
+    } else {
+        recorder.start();
+    }
+}
+function endRecord (e) {
+    recorder.stop();
+}
+function transRecord (e) {
+    let pcm = recorder.getPCMBlob(),
+        formdata = new FormData();
+
+    formdata.append('file', pcm);
+
+    fetch('/speech', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
+        body: formdata
+    }).then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        console.log(data);
+    });
+}
+function playRecord() {
+    recorder.play(audio);
+}
+</script>
+</html>

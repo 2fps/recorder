@@ -247,7 +247,7 @@ function combineDataView(resultConstructor, ...arrays) {
 }
 
 
-export default Recorder;
+// export default Recorder;
 
 /* 
 var val = s < 0 ? s * 0x8000 : s * 0x7FFF;
