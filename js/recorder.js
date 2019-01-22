@@ -15,9 +15,14 @@ let Recorder = function() {
 // 设置如采样位数的参数
 Recorder.prototype.setOption = function(option) {
     // 修改采样率，采样位数配置
-    Object.assign(this.config, option);
+    Object.assign(this.config, option);  // 不兼容的话，用for in + hasOwnProperty 循环赋值
 }
-Recorder.prototype.ready = function() {
+Recorder.prototype.ready = function(options) {
+    if (options) {
+        // 设置部分options
+        this.setOption(options);
+    }
+
     this.context = new (window.AudioContext || window.webkitAudioContext)();
     // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
     // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
@@ -25,7 +30,7 @@ Recorder.prototype.ready = function() {
     this.recorder = this.createScript.apply(this.context, [4096, 1, 1]);
 
     // 音频采集
-    this.recorder.onaudioprocess = e => {
+    this.recorder.onaudioprocess = e => {   // 不兼容的话，直接用 function(){}，但注意 this 指向
         this.input(e.inputBuffer.getChannelData(0));
     }
 
@@ -55,6 +60,11 @@ Recorder.prototype.ready = function() {
             }
         });
 };
+// 清空
+Recorder.prototype.clear = function() {
+    this.buffer.length = 0;
+    this.size = 0;
+}
 // 异常处理
 Recorder.throwError = function (message) {
     throw new Error (message);
@@ -62,8 +72,8 @@ Recorder.throwError = function (message) {
 // 开始录音
 Recorder.prototype.start = function() {
     // 清空数据
-    this.buffer.length = 0;
-    this.size = 0;
+    this.clear();
+
     // audioInput 为声音源，连接到处理节点 recorder
     this.audioInput.connect(this.recorder);
     // 处理节点 recorder 连接到扬声器
@@ -116,7 +126,7 @@ Recorder.prototype.compress = function () {
         data.set(this.buffer[i], offset);
         offset += this.buffer[i].length;
     }
-    // 压缩
+    // 压缩，根据采样率进行压缩
     var compression = parseInt(this.inputSampleRate / this.outputSampleRate);
     var length = data.length / compression;
     var result = new Float32Array(length);
@@ -164,7 +174,8 @@ Recorder.prototype.encodePCM = function() {
 
     return data;
 }
-
+// 编码wav，一般wav格式是在pcm文件前增加44个字节的文件头，
+// 所以，此处只需要在pcm数据前增加下就行了。
 Recorder.prototype.encodeWAV = function() {
     var sampleRate = Math.min(this.inputSampleRate, this.outputSampleRate);
     var sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits);
@@ -248,8 +259,3 @@ function combineDataView(resultConstructor, ...arrays) {
 
 
 // export default Recorder;
-
-/* 
-var val = s < 0 ? s * 0x8000 : s * 0x7FFF;
-val = parseInt(255 / (65535 / (val + 32768)));
- */
