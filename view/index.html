@@ -5,11 +5,12 @@
         <title>录音</title>
     </head>
     <body>
-        <input type="button" value="开启" onclick="startRecord()" />
-        <input type="button" value="停止" onclick="endRecord()" />
-        <input type="button" value="上传翻译" onclick="transRecord()" />
+        <input type="button" value="录音开启" onclick="startRecord()" />
+        <input type="button" value="录音停止" onclick="endRecord()" />
         <input type="button" value="播放录音" onclick="playRecord()" />
+        <input type="button" value="上传翻译" onclick="transRecord()" />
         <audio autoplay controls id="audio"></audio>
+        <div id="box" style="width: 30px;height: 0px;background-color: olive;"></div>
     </body>
 <script src="recorder.js"></script>
 <script>
@@ -26,6 +27,14 @@ function startRecord() {
     } else {
         recorder.start();
     }
+
+    recorder.setOption({
+        recorderProcess: function(voice) {
+            // console.log(voice);
+            oDiv.style.height = 100 *  voice + 'px';
+            oDiv.style.marginTop = 100 * ( 1 - voice) + 'px';
+        }
+    });
 }
 function endRecord (e) {
     recorder.stop();

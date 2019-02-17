@@ -3,6 +3,7 @@ let Recorder = function() {
         sampleBits: 16,         // 采样数位 8, 16
         sampleRate: 16000       // 采样率(1/6 44100)
     };
+    this.player = null;
     this.size = 0;              // 录音文件总长度
     this.buffer = [];           // 录音缓存
     // 录音实时获取数据
@@ -10,6 +11,13 @@ let Recorder = function() {
         // 记录数据，这儿的buffer是二维的
         this.buffer.push(new Float32Array(data));
         this.size += data.length;
+        // 回调传出音频大小
+        if (this.config.recorderProcess) {
+            let voice = Math.abs(data[data.length - 1]);
+
+            voice = Math.min(1, voice);
+            this.config.recorderProcess(voice);
+        }
     };
 };
 // 设置如采样位数的参数
@@ -91,8 +99,23 @@ Recorder.prototype.stop = function () {
 // 播放到audio标签中
 // 参数表示audio元素
 Recorder.prototype.play = function (audio) {
-    audio.src = window.URL.createObjectURL(this.getWAVBlob());
+    // audio.src = window.URL.createObjectURL(this.getWAVBlob());
+    if (!this.player) {
+        this.player = document.createElement('audio');
+        document.body.appendChild(this.player);
+    }
+    this.player.src = window.URL.createObjectURL(this.getWAVBlob());
+    this.player.play();
 }
+// 销毁，防止内存泄漏
+Recorder.prototype.destory = function() {
+    if (this.player) {
+        document.body.removeChild(this.player);
+        this.player = null;
+    }
+
+    this.clear();
+};
 // 获取PCM编码的二进制数据
 Recorder.prototype.getPCM = function () {
     this.stop();
