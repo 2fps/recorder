@@ -1,7 +1,7 @@
 {
   "name": "speech",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
+  "private": false,
   "scripts": {
     "start": "node app"
   },
@@ -10,7 +10,7 @@
     "request": "^2.88.0"
   },
   "main": "app.js",
-  "author": "",
-  "license": "ISC",
+  "author": "2fps",
+  "license": "MIT",
   "description": ""
 }

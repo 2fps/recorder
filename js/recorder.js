@@ -6,6 +6,7 @@ let Recorder = function() {
     this.player = null;
     this.size = 0;              // 录音文件总长度
     this.buffer = [];           // 录音缓存
+    this.PCMData = null;        // 存储转换后的pcm数据
     // 录音实时获取数据
     this.input = function (data) {
         // 记录数据，这儿的buffer是二维的
@@ -23,7 +24,7 @@ let Recorder = function() {
 // 设置如采样位数的参数
 Recorder.prototype.setOption = function(option) {
     // 修改采样率，采样位数配置
-    Object.assign(this.config, option);  // 不兼容的话，用for in + hasOwnProperty 循环赋值
+    Object.assign(this.config, option);
 }
 Recorder.prototype.ready = function(options) {
     if (options) {
@@ -38,7 +39,7 @@ Recorder.prototype.ready = function(options) {
     this.recorder = this.createScript.apply(this.context, [4096, 1, 1]);
 
     // 音频采集
-    this.recorder.onaudioprocess = e => {   // 不兼容的话，直接用 function(){}，但注意 this 指向
+    this.recorder.onaudioprocess = e => {
         this.input(e.inputBuffer.getChannelData(0));
     }
 
@@ -72,6 +73,7 @@ Recorder.prototype.ready = function(options) {
 Recorder.prototype.clear = function() {
     this.buffer.length = 0;
     this.size = 0;
+    this.PCMData = null;
 }
 // 异常处理
 Recorder.throwError = function (message) {
@@ -98,14 +100,9 @@ Recorder.prototype.stop = function () {
 }
 // 播放到audio标签中
 // 参数表示audio元素
-Recorder.prototype.play = function (audio) {
-    // audio.src = window.URL.createObjectURL(this.getWAVBlob());
-    if (!this.player) {
-        this.player = document.createElement('audio');
-        document.body.appendChild(this.player);
-    }
-    this.player.src = window.URL.createObjectURL(this.getWAVBlob());
-    this.player.play();
+Recorder.prototype.play = function () {
+    // 考虑到该组件可以封装到web worker中，但worker中不能访问和操作dom，股抛出blob资源地址
+    return window.URL.createObjectURL(this.getWAVBlob());
 }
 // 销毁，防止内存泄漏
 Recorder.prototype.destory = function() {
@@ -119,8 +116,8 @@ Recorder.prototype.destory = function() {
 // 获取PCM编码的二进制数据
 Recorder.prototype.getPCM = function () {
     this.stop();
-
-    return this.encodePCM();
+    // 利用存储的PCMData，节省性能
+    return this.PCMData || ( this.PCMData = this.encodePCM() );
 }
 // 获取不压缩的PCM格式的编码
 Recorder.prototype.getPCMBlob = function() {
