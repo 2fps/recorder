@@ -1,16 +1,22 @@
 {
-  "name": "speech",
-  "version": "0.0.1",
-  "private": false,
+  "name": "recorder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/recorder.js",
   "scripts": {
-    "start": "node app"
+    "dev": "webpack --mode=development",
+    "build": "webpack --mode=production"
   },
-  "dependencies": {
-    "@alicloud/pop-core": "^1.7.4",
-    "request": "^2.88.0"
-  },
-  "main": "app.js",
+  "keywords": [],
   "author": "2fps",
   "license": "MIT",
-  "description": ""
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "babel-preset-es2015": "^6.24.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
+  }
 }
