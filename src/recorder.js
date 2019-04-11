@@ -18,15 +18,15 @@ class Recorder {
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
         this.PCMData = null;        // 存储转换后的pcm数据
-    }
 
-    ready() {
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
         this.createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
         this.recorder = this.createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
-    
+    }
+
+    ready() {
         // 音频采集
         this.recorder.onaudioprocess = e => {
             let data = e.inputBuffer.getChannelData(0);
@@ -103,16 +103,17 @@ class Recorder {
 
     // 播放声音
     play() {
-        this.source = context.createBufferSource();
+		this.context.decodeAudioData(this.encodeWAV().buffer, buffer => {
+            this.source = this.context.createBufferSource();
 
-        // 设置数据
-        this.source.buffer = this.encodePCM().buffer; // this.encodeWAV().buffer
-        // connect到扬声器
-        this.source.connect(context.destination);
-        this.source.start();
-
-        // 考虑到该组件可以封装到web worker中，但worker中不能访问和操作dom，股抛出blob资源地址
-        return window.URL.createObjectURL(this.getWAVBlob());
+            // 设置数据
+            this.source.buffer = buffer;
+            // connect到扬声器
+            this.source.connect(this.context.destination);
+            this.source.start();
+        }, function() {
+            console.log('error');
+        });
     }
 
     // 销毁，防止内存泄漏

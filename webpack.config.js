@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
     // 入口
     entry: path.resolve(__dirname, 'src/recorder.js'),
-    // devtool: 'source-map',
+    devtool: 'source-map',
     output: {
         // 出口重命名js
         filename: 'recorder.js',
