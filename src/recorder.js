@@ -13,7 +13,7 @@ class Recorder {
             // 采样率(16000)
             sampleRate: [11025, 22050, 24000, 44100, 48000].includes(options.sampleRate) ? options.sampleRate : 16000,
             // 声道数，1或2
-            numChannels: [1, 2].includes(options.numChannels) ? options.numChannels : 1,
+            numChannels: [1/* , 2 */].includes(options.numChannels) ? options.numChannels : 1,
         };
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
@@ -212,7 +212,7 @@ class Recorder {
         var buffer = new ArrayBuffer(44);
         var data = new DataView(buffer);
     
-        var channelCount = 1;   // 单声道
+        var channelCount = this.config.numChannels; // 声道
         var offset = 0;
     
         // 资源交换文件标识符 

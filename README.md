@@ -50,12 +50,12 @@ npm run build
 ```
 
 ### 代码结构
-recorder/
-└── dist/
-    ├── recorder.js         webpack打包生成后的文件
-    ├── recorder.js.map     sourcemsp
-└── src/
-    ├── recorder.js         源文件
+recorder/  
+└── dist/  
+    ├── recorder.js         webpack打包生成后的文件  
+    ├── recorder.js.map     sourcemsp  
+└── src/  
+    ├── recorder.js         源文件  
 
 ### 注意
 

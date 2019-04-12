@@ -9,11 +9,11 @@ document.getElementById('playRecord').addEventListener('click', playRecord);
 function startRecord() {
     if (!recorder) {
         recorder = new Recorder({
-            numChannels: 2
+            // 双声道录音有问题
+            // numChannels: 2
         });
     }
     recorder.start();
-
 }
 function endRecord (e) {
     recorder && recorder.stop();
