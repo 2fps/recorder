@@ -29,10 +29,13 @@ class Recorder {
     ready() {
         // 音频采集
         this.recorder.onaudioprocess = e => {
-            let data = e.inputBuffer.getChannelData(0);
-            // 收集音频数据，这儿的buffer是二维的
-            this.buffer.push(new Float32Array(data));
-            this.size += data.length;
+            // getChannelData返回Float32Array类型的pcm数据
+            for (let i = 0; i < this.config.numChannels; ++i) {
+                let data = e.inputBuffer.getChannelData(i);
+                // 收集音频数据，这儿的buffer是二维的
+                this.buffer.push(new Float32Array(data));
+                this.size += data.length;
+            }
         }
     
         return navigator.mediaDevices.getUserMedia({
@@ -42,23 +45,8 @@ class Recorder {
                 // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
                 this.audioInput = this.context.createMediaStreamSource(stream);
             }, error => {
-                switch (error.code || error.name) {
-                    case 'PERMISSION_DENIED':
-                    case 'PermissionDeniedError':
-                        Recorder.throwError('用户拒绝提供信息。');
-                        break;
-                    case 'NOT_SUPPORTED_ERROR':
-                    case 'NotSupportedError':
-                        Recorder.throwError('浏览器不支持硬件设备。');
-                        break;
-                    case 'MANDATORY_UNSATISFIED_ERROR':
-                    case 'MandatoryUnsatisfiedError':
-                        Recorder.throwError('无法发现指定的硬件设备。');
-                        break;
-                    default:
-                        Recorder.throwError('无法打开麦克风。异常信息:' + (error.code || error.name));
-                        break;
-                }
+                // 抛出异常
+                Recorder.throwError(error.name + " : " + error.message);
             });
     }
 
@@ -73,11 +61,6 @@ class Recorder {
             this.source.disconnect();
             this.source = null;
         }
-    }
-
-    // 异常处理
-    throwError(message) {
-        throw new Error (message);
     }
 
     // 开始录音
@@ -103,7 +86,7 @@ class Recorder {
 
     // 播放声音
     play() {
-		this.context.decodeAudioData(this.encodeWAV().buffer, buffer => {
+        this.context.decodeAudioData(this.encodeWAV().buffer, buffer => {
             this.source = this.context.createBufferSource();
 
             // 设置数据
@@ -150,19 +133,26 @@ class Recorder {
         // toDo..
     }
 
+    // 将二维数组转一维
+    flat() {
+        // 合并
+        let data = new Float32Array(this.size),
+            offset = 0; // 偏移量计算
+        // 将二维数据，转成一维数据
+        for (let i = 0; i < this.buffer.length; i++) {
+            data.set(this.buffer[i], offset);
+            offset += this.buffer[i].length;
+        }
+
+        return data;
+    }
+
     // 数据合并压缩
     // 根据输入和输出的采样率压缩数据，
     // 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
     // 所以输入数据中每隔3取1位
     compress() {
-        // 合并
-        var data = new Float32Array(this.size);
-        var offset = 0; // 偏移量计算
-        // 将二维数据，转成一维数据
-        for (var i = 0; i < this.buffer.length; i++) {
-            data.set(this.buffer[i], offset);
-            offset += this.buffer[i].length;
-        }
+        let data = this.flat();
         // 压缩，根据采样率进行压缩
         var compression = parseInt(this.inputSampleRate / this.outputSampleRate, 10) || 1;
         var length = data.length / compression;
@@ -253,7 +243,7 @@ class Recorder {
         data.setUint32(offset, bytes.byteLength, true); offset += 4;
         
         // 给pcm文件增加头
-        data = combineDataView(DataView, data, bytes);
+        data = combineDataView(data, bytes);
     
         return data;
     }
@@ -271,11 +261,10 @@ function writeString(data, offset, str) {
 }
 
 /**
- * 合并二进制数据
- * @param {TypedArrays} resultConstructor   需要合并成的数据类型
+ * 合并数据
  * @param {TypedArrays} ...arrays           需要合并的数据
  */
-function combineDataView(resultConstructor, ...arrays) {
+function combineDataView(...arrays) {
     let totalLength = 0,
         offset = 0;
     // 统计长度
@@ -284,7 +273,7 @@ function combineDataView(resultConstructor, ...arrays) {
     }
     // 创建新的存放变量
     let buffer = new ArrayBuffer(totalLength),
-        result = new resultConstructor(buffer);
+        result = new DataView(buffer);
     // 设置数据
     for (let arr of arrays) {
         // dataview合并
@@ -297,5 +286,13 @@ function combineDataView(resultConstructor, ...arrays) {
     return result;
 }
 
+
+/** 
+ * 通用方法
+ */
+// 异常处理
+Recorder.throwError = function(message) {
+    throw new Error (message);
+}
 
 export default Recorder;
