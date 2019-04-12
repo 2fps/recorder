@@ -13,20 +13,19 @@ class Recorder {
             // 采样率(16000)
             sampleRate: [11025, 22050, 24000, 44100, 48000].includes(options.sampleRate) ? options.sampleRate : 16000,
             // 声道数，1或2
-            numChannels: [1, 2].includes(options.sampleBits) ? options.sampleBits : 1,
+            numChannels: [1, 2].includes(options.numChannels) ? options.numChannels : 1,
         };
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
         this.PCMData = null;        // 存储转换后的pcm数据
+        this.audioInput = null;
 
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
         this.createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
         this.recorder = this.createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
-    }
 
-    ready() {
         // 音频采集
         this.recorder.onaudioprocess = e => {
             // getChannelData返回Float32Array类型的pcm数据
@@ -37,17 +36,39 @@ class Recorder {
                 this.size += data.length;
             }
         }
-    
-        return navigator.mediaDevices.getUserMedia({
-                audio: true
-            }).then(stream => {
-                // audioInput表示音频源节点
-                // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
-                this.audioInput = this.context.createMediaStreamSource(stream);
-            }, error => {
-                // 抛出异常
-                Recorder.throwError(error.name + " : " + error.message);
-            });
+    }
+
+    // 开始录音
+    start() {
+        // 清空数据
+        this.clear();
+
+        navigator.mediaDevices.getUserMedia({
+            audio: true
+        }).then(stream => {
+            // audioInput表示音频源节点
+            // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
+            this.audioInput = this.context.createMediaStreamSource(stream);
+        }, error => {
+            // 抛出异常
+            Recorder.throwError(error.name + " : " + error.message);
+        }).then(() => {
+            // audioInput 为声音源，连接到处理节点 recorder
+            this.audioInput.connect(this.recorder);
+            // 处理节点 recorder 连接到扬声器
+            this.recorder.connect(this.context.destination);
+            // 设置压缩参数
+            this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
+            this.inputSampleBits = 16;                          // 输入采样数位 8, 16
+            this.outputSampleRate = this.config.sampleRate;     // 输出采样率
+            this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
+        });
+    }
+
+    // 停止录音
+    stop() {
+        this.audioInput && this.audioInput.disconnect();
+        this.recorder.disconnect();
     }
 
     // 清空
@@ -61,27 +82,6 @@ class Recorder {
             this.source.disconnect();
             this.source = null;
         }
-    }
-
-    // 开始录音
-    start() {
-        // 清空数据
-        this.clear();
-    
-        // audioInput 为声音源，连接到处理节点 recorder
-        this.audioInput.connect(this.recorder);
-        // 处理节点 recorder 连接到扬声器
-        this.recorder.connect(this.context.destination);
-        // 设置压缩参数
-        this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
-        this.inputSampleBits = 16;                          // 输入采样数位 8, 16
-        this.outputSampleRate = this.config.sampleRate;     // 输出采样率
-        this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
-    }
-
-    // 停止录音
-    stop() {
-        this.recorder.disconnect();
     }
 
     // 播放声音

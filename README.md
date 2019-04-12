@@ -2,8 +2,9 @@
 原生js实现的web端录音
 
 ### 安装依赖
+不编译的话，不必安装
 ```
-npm install
+npm ci (推荐) 或 npm i
 npm install http-server -g
 ```
 
@@ -14,8 +15,28 @@ http-server (或双击index.html)
 ### 浏览器访问
 http://127.0.0.1:8080/
 
-### 代码结构
-index.html 为demo入口
+### 使用方法
+#### 简单使用
+```
+let recorder = new Recorder();
+
+// 开始录音
+recorder.start();
+// 结束录音
+recorder.stop();
+// 录音播放
+recorder.play();
+```
+
+#### 传入参数
+new Recorder时支持传入参数
+```
+{
+    sampleBits: 16,         // 采样位数
+    sampleRate: 16000,      // 采样率
+    numChannels: 1,         // 声道
+}
+```
 
 ### 代码编译
 生成开发环境代码：
@@ -27,6 +48,14 @@ npm run dev
 ```
 npm run build
 ```
+
+### 代码结构
+recorder/
+└── dist/
+    ├── recorder.js         webpack打包生成后的文件
+    ├── recorder.js.map     sourcemsp
+└── src/
+    ├── recorder.js         源文件
 
 ### 注意
 

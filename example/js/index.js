@@ -8,17 +8,16 @@ document.getElementById('playRecord').addEventListener('click', playRecord);
 
 function startRecord() {
     if (!recorder) {
-        recorder = new Recorder();
-        recorder.ready().then(() => {
-            recorder.start();
+        recorder = new Recorder({
+            numChannels: 2
         });
-    } else {
-        recorder.start();
     }
+    recorder.start();
+
 }
 function endRecord (e) {
-    recorder.stop();
+    recorder && recorder.stop();
 }
 function playRecord() {
-    recorder.play(audio);
+    recorder && recorder.play();
 }
