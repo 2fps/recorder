@@ -1,6 +1,6 @@
 {
   "name": "js-audio-recorder",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "原生js实现的web端录音插件",
   "main": "index.js",
   "scripts": {
