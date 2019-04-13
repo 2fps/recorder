@@ -18,6 +18,13 @@ http-server (或双击example.html)
 let recorder = new Recorder();
 ```
 + npm方式：
+
+安装：
+```
+npm i js-audio-recorder
+
+```
+调用：
 ```
 import Recorder from 'js-audio-recorder';
 
@@ -55,3 +62,13 @@ new Recorder时支持传入参数，
 + [webAudio实现获取音频模拟信号数据](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E5%AE%9E%E7%8E%B0%E8%8E%B7%E5%8F%96%E9%9F%B3%E9%A2%91%E6%A8%A1%E6%8B%9F%E4%BF%A1%E5%8F%B7%E6%95%B0%E6%8D%AE)
 + [js实现音频模拟信号转数字信号](https://github.com/2fps/demo/tree/master/view/2019/04/js%E5%AE%9E%E7%8E%B0%E9%9F%B3%E9%A2%91%E6%A8%A1%E6%8B%9F%E4%BF%A1%E5%8F%B7%E8%BD%AC%E6%95%B0%E5%AD%97%E4%BF%A1%E5%8F%B7)
 + [基于阿里云实现简单的语音识别功能(node)](https://github.com/2fps/demo/tree/master/view/2019/01/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8A%9F%E8%83%BD(node))
+
+### 浏览器兼容性
+主要是以下两方面：
++ Web Audio Api
+
+[https://caniuse.com/#search=webaudio](https://caniuse.com/#search=webaudio)
+
++ getUserMedia
+
+[https://caniuse.com/#search=getusermedia](https://caniuse.com/#search=getusermedia)
