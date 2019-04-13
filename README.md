@@ -1,25 +1,31 @@
 # recorder
 原生js实现的web端录音
 
-### 安装依赖
-不编译的话，不必安装
+## 使用
+### demo使用
 ```
-npm ci (推荐) 或 npm i
 npm install http-server -g
+http-server (或双击example.html)
 ```
-
-### 运行环境
-```
-http-server (或双击index.html)
-```
-### 浏览器访问
-http://127.0.0.1:8080/
+访问 http://127.0.0.1:8080/example.html
 
 ### 使用方法
-#### 简单使用
+#### 引入方式
++ script标签方式
+
+直接引入dist下的recorder.js即可
 ```
 let recorder = new Recorder();
+```
++ npm方式：
+```
+import Recorder from 'js-audio-recorder';
 
+let recorder = new Recorder();
+```
+
+#### 调用方法
+```
 // 开始录音
 recorder.start();
 // 结束录音
@@ -29,7 +35,7 @@ recorder.play();
 ```
 
 #### 传入参数
-new Recorder时支持传入参数
+new Recorder时支持传入参数，
 ```
 {
     sampleBits: 16,         // 采样位数
@@ -37,25 +43,6 @@ new Recorder时支持传入参数
     numChannels: 1,         // 声道
 }
 ```
-
-### 代码编译
-生成开发环境代码：
-```
-npm run dev
-```
-
-生成生产环境代码：
-```
-npm run build
-```
-
-### 代码结构
-recorder/  
-└── dist/  
-    ├── recorder.js         webpack打包生成后的文件  
-    ├── recorder.js.map     sourcemsp  
-└── src/  
-    ├── recorder.js         源文件  
 
 ### 注意
 

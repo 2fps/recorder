@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>录音</title>
+    </head>
+    <body>
+        <input type="button" value="录音开启" id="startRecord" />
+        <input type="button" value="录音停止" id="endRecord" />
+        <input type="button" value="播放录音" id="playRecord" />
+    </body>
+<script type="text/javascript" src="./dist/recorder.js"></script>
+<script type="text/javascript">
 var oDiv = document.getElementById('box'),
     audio = document.getElementById('audio'),
     recorder = null;
@@ -10,7 +23,9 @@ function startRecord() {
     if (!recorder) {
         recorder = new Recorder({
             // 双声道录音有问题
-            // numChannels: 2
+            sampleBits: 8,
+            sampleRate: 48000,
+            numChannels: 2,
         });
     }
     recorder.start();
@@ -21,3 +36,5 @@ function endRecord (e) {
 function playRecord() {
     recorder && recorder.play();
 }
+</script>
+</html>

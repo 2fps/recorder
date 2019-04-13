@@ -1,15 +1,27 @@
 {
-  "name": "recorder",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/recorder.js",
+  "name": "js-audio-recorder",
+  "version": "0.0.1",
+  "description": "原生js实现的web端录音插件",
+  "main": "index.js",
   "scripts": {
     "dev": "webpack --mode=development",
     "build": "webpack --mode=production"
   },
-  "keywords": [],
+  "keywords": [
+    "recorder",
+    "javascript",
+    "js"
+  ],
   "author": "2fps",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2fps/recorder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/2fps/recorder/issues"
+  },
+  "homepage": "https://github.com/2fps/recorder#readme",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",

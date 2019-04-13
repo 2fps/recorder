@@ -1,3 +1,5 @@
+let isrecording = false;   // 是否正在录音
+
 class Recorder {
     /**
      * @param {Object} options 包含以下三个参数：
@@ -18,7 +20,8 @@ class Recorder {
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
         this.PCMData = null;        // 存储转换后的pcm数据
-        this.audioInput = null;
+        this.audioInput = null;     // 录音输入节点
+
 
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
@@ -40,8 +43,13 @@ class Recorder {
 
     // 开始录音
     start() {
+        if (isrecording) {
+            // 正在录音，则不允许
+            return;
+        }
         // 清空数据
         this.clear();
+        isrecording = true;
 
         navigator.mediaDevices.getUserMedia({
             audio: true
@@ -67,6 +75,7 @@ class Recorder {
 
     // 停止录音
     stop() {
+        isrecording = false;
         this.audioInput && this.audioInput.disconnect();
         this.recorder.disconnect();
     }
@@ -76,6 +85,7 @@ class Recorder {
         this.buffer.length = 0;
         this.size = 0;
         this.PCMData = null;
+        this.audioInput = null;
 
         if (this.source) {
             // 录音前，关闭录音播放
@@ -86,6 +96,8 @@ class Recorder {
 
     // 播放声音
     play() {
+        this.stop();
+
         this.context.decodeAudioData(this.encodeWAV().buffer, buffer => {
             this.source = this.context.createBufferSource();
 
@@ -106,7 +118,6 @@ class Recorder {
 
     // 获取PCM编码的二进制数据
     getPCM() {
-        this.stop();
         // 利用存储的PCMData，节省性能
         return this.PCMData || ( this.PCMData = this.encodePCM() );
     }
@@ -118,8 +129,6 @@ class Recorder {
 
     // 获取WAV编码的二进制数据
     getWAV() {
-        this.stop();
-    
         return this.encodeWAV();
     }
 
