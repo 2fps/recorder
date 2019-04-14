@@ -22,7 +22,6 @@ class Recorder {
         this.PCMData = null;        // 存储转换后的pcm数据
         this.audioInput = null;     // 录音输入节点
 
-
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
@@ -111,11 +110,6 @@ class Recorder {
         });
     }
 
-    // 销毁，防止内存泄漏
-    destory() {    
-        this.clear();
-    }
-
     // 获取PCM编码的二进制数据
     getPCM() {
         // 利用存储的PCMData，节省性能
@@ -137,11 +131,6 @@ class Recorder {
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 
-    // 压缩pcm数据
-    compressPCM() {
-        // toDo..
-    }
-
     // 将二维数组转一维
     flat() {
         // 合并
@@ -161,12 +150,12 @@ class Recorder {
     // 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
     // 所以输入数据中每隔3取1位
     compress() {
-        let data = this.flat();
+        let data = this.flat(),
         // 压缩，根据采样率进行压缩
-        var compression = parseInt(this.inputSampleRate / this.outputSampleRate, 10) || 1;
-        var length = data.length / compression;
-        var result = new Float32Array(length);
-        var index = 0, j = 0;
+            compression = parseInt(this.inputSampleRate / this.outputSampleRate, 10) || 1,
+            length = data.length / compression,
+            result = new Float32Array(length),
+            index = 0, j = 0;
         // 循环间隔 compression 位取一位数据
         while (index < length) {
             result[index] = data[j];
@@ -215,44 +204,47 @@ class Recorder {
     // 编码wav，一般wav格式是在pcm文件前增加44个字节的文件头，
     // 所以，此处只需要在pcm数据前增加下就行了。
     encodeWAV() {
-        var sampleRate = Math.min(this.inputSampleRate, this.outputSampleRate);
-        var sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits);
-        var bytes = this.encodePCM();
-        var buffer = new ArrayBuffer(44);
-        var data = new DataView(buffer);
+        var sampleRate = Math.min(this.inputSampleRate, this.outputSampleRate),
+            sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits),
+            bytes = this.encodePCM(),
+            buffer = new ArrayBuffer(44 + bytes.byteLength),
+            data = new DataView(buffer),
+            channelCount = this.config.numChannels, // 声道
+            offset = 0;
     
-        var channelCount = this.config.numChannels; // 声道
-        var offset = 0;
-    
-        // 资源交换文件标识符 
+        // 资源交换文件标识符
         writeString(data, offset, 'RIFF'); offset += 4;
-        // 下个地址开始到文件尾总字节数,即文件大小-8 
+        // 下个地址开始到文件尾总字节数,即文件大小-8
         data.setUint32(offset, 36 + bytes.byteLength, true); offset += 4;
         // WAV文件标志
         writeString(data, offset, 'WAVE'); offset += 4;
-        // 波形格式标志 
+        // 波形格式标志
         writeString(data, offset, 'fmt '); offset += 4;
-        // 过滤字节,一般为 0x10 = 16 
+        // 过滤字节,一般为 0x10 = 16
         data.setUint32(offset, 16, true); offset += 4;
-        // 格式类别 (PCM形式采样数据) 
+        // 格式类别 (PCM形式采样数据)
         data.setUint16(offset, 1, true); offset += 2;
-        // 通道数 
+        // 声道数
         data.setUint16(offset, channelCount, true); offset += 2;
-        // 采样率,每秒样本数,表示每个通道的播放速度 
+        // 采样率,每秒样本数,表示每个通道的播放速度
         data.setUint32(offset, sampleRate, true); offset += 4;
-        // 波形数据传输率 (每秒平均字节数) 单声道×每秒数据位数×每样本数据位/8 
+        // 波形数据传输率 (每秒平均字节数) 声道数 × 采样频率 × 采样位数 / 8
         data.setUint32(offset, channelCount * sampleRate * (sampleBits / 8), true); offset += 4;
-        // 快数据调整数 采样一次占用字节数 单声道×每样本的数据位数/8 
+        // 快数据调整数 采样一次占用字节数 声道数 × 采样位数 / 8
         data.setUint16(offset, channelCount * (sampleBits / 8), true); offset += 2;
-        // 每样本数据位数 
+        // 采样位数
         data.setUint16(offset, sampleBits, true); offset += 2;
-        // 数据标识符 
+        // 数据标识符
         writeString(data, offset, 'data'); offset += 4;
-        // 采样数据总数,即数据总大小-44 
+        // 采样数据总数,即数据总大小-44
         data.setUint32(offset, bytes.byteLength, true); offset += 4;
         
-        // 给pcm文件增加头
-        data = combineDataView(data, bytes);
+        // 给wav头增加pcm体
+        for (let i = 0; i < bytes.byteLength;) {
+            data.setUint32(offset, bytes.getUint32(i, true), true);
+            offset += 4;
+            i += 4;
+        }
     
         return data;
     }
@@ -268,33 +260,6 @@ function writeString(data, offset, str) {
         data.setUint8(offset + i, str.charCodeAt(i));
     }
 }
-
-/**
- * 合并数据
- * @param {TypedArrays} ...arrays           需要合并的数据
- */
-function combineDataView(...arrays) {
-    let totalLength = 0,
-        offset = 0;
-    // 统计长度
-    for (let arr of arrays) {
-        totalLength += arr.length || arr.byteLength;
-    }
-    // 创建新的存放变量
-    let buffer = new ArrayBuffer(totalLength),
-        result = new DataView(buffer);
-    // 设置数据
-    for (let arr of arrays) {
-        // dataview合并
-        for (let i = 0, len = arr.byteLength; i < len; ++i) {
-            result.setInt8(offset, arr.getInt8(i));
-            offset += 1;
-        }
-    }
-
-    return result;
-}
-
 
 /** 
  * 通用方法
