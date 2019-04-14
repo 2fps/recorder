@@ -3,26 +3,28 @@ let isrecording = false;   // 是否正在录音
 class Recorder {
     /**
      * @param {Object} options 包含以下三个参数：
-     * sampleBits，采样位数，一般8,16
-     * sampleRate，采样率，一般 11025、22050、24000、44100、48000
+     * sampleBits，采样位数，一般8,16，默认16
+     * sampleRate，采样率，一般 11025、16000、22050、24000、44100、48000，默认为浏览器自带的采样率
      * numChannels，声道，1或2
      */
     constructor(options = {}) {
+        this.context = new (window.AudioContext || window.webkitAudioContext)();
+        this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
+
         // 配置config，检查值是否有问题
         this.config = {
             // 采样数位 8, 16
             sampleBits: [8, 16].includes(options.sampleBits) ? options.sampleBits : 16,
-            // 采样率(16000)
-            sampleRate: [11025, 22050, 24000, 44100, 48000].includes(options.sampleRate) ? options.sampleRate : 16000,
+            // 采样率
+            sampleRate: [11025, 16000, 22050, 24000, 44100, 48000].includes(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
             // 声道数，1或2
-            numChannels: [1/* , 2 */].includes(options.numChannels) ? options.numChannels : 1,
+            numChannels: [1, 2].includes(options.numChannels) ? options.numChannels : 1,
         };
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
         this.PCMData = null;        // 存储转换后的pcm数据
         this.audioInput = null;     // 录音输入节点
 
-        this.context = new (window.AudioContext || window.webkitAudioContext)();
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
         this.createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
@@ -31,11 +33,33 @@ class Recorder {
         // 音频采集
         this.recorder.onaudioprocess = e => {
             // getChannelData返回Float32Array类型的pcm数据
-            for (let i = 0; i < this.config.numChannels; ++i) {
-                let data = e.inputBuffer.getChannelData(i);
-                // 收集音频数据，这儿的buffer是二维的
+            if (1 === this.config.numChannels) {
+                let data = e.inputBuffer.getChannelData(0);
+                // 单通道
                 this.buffer.push(new Float32Array(data));
                 this.size += data.length;
+            } else {
+                /*
+                 * 双声道处理
+                 * e.inputBuffer.getChannelData(0)得到了左声道4096个样本数据，1是右声道的数据，
+                 * 此处需要组和成LRLRLR这种格式，才能正常播放，所以要处理下
+                 */
+                let lData = new Float32Array(e.inputBuffer.getChannelData(0)),
+                    rData = new Float32Array(e.inputBuffer.getChannelData(1)),
+                    // 新的数据为左声道和右声道数据量之和
+                    buffer = new ArrayBuffer(lData.byteLength + rData.byteLength),
+                    dData = new Float32Array(buffer),
+                    offset = 0;
+
+                for (let i = 0; i < lData.byteLength; ++i) {
+                    dData[ offset ] = lData[i];
+                    offset++;
+                    dData[ offset ] = rData[i];
+                    offset++;
+                }
+
+                this.buffer.push(dData);
+                this.size += offset;
             }
         }
     }
@@ -65,7 +89,6 @@ class Recorder {
             // 处理节点 recorder 连接到扬声器
             this.recorder.connect(this.context.destination);
             // 设置压缩参数
-            this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
             this.inputSampleBits = 16;                          // 输入采样数位 8, 16
             this.outputSampleRate = this.config.sampleRate;     // 输出采样率
             this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
@@ -241,9 +264,9 @@ class Recorder {
         
         // 给wav头增加pcm体
         for (let i = 0; i < bytes.byteLength;) {
-            data.setUint32(offset, bytes.getUint32(i, true), true);
-            offset += 4;
-            i += 4;
+            data.setUint8(offset, bytes.getUint8(i, true), true);
+            offset++;
+            i++;
         }
     
         return data;

@@ -22,7 +22,6 @@ let recorder = new Recorder();
 安装：
 ```
 npm i js-audio-recorder
-
 ```
 调用：
 ```
@@ -41,13 +40,18 @@ recorder.stop();
 recorder.play();
 ```
 
+#### 默认配置
+sampleBits，采样位数，默认是16  
+sampleRate，采样频率，浏览器默认的，我的chrome是48000  
+numChannels，声道数，默认是1  
+
 #### 传入参数
 new Recorder时支持传入参数，
 ```
 {
-    sampleBits: 16,         // 采样位数
-    sampleRate: 16000,      // 采样率
-    numChannels: 1,         // 声道
+    sampleBits: 16,         // 采样位数，范围8或16
+    sampleRate: 16000,      // 采样率，范围11025、16000、22050、24000、44100、48000
+    numChannels: 1,         // 声道，范围1或2
 }
 ```
 
@@ -64,7 +68,7 @@ new Recorder时支持传入参数，
 + [基于阿里云实现简单的语音识别功能(node)](https://github.com/2fps/demo/tree/master/view/2019/01/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8A%9F%E8%83%BD(node))
 
 ### 浏览器兼容性
-主要是以下两方面：
+主要是以下几个方面：
 + Web Audio Api
 
 [https://caniuse.com/#search=webaudio](https://caniuse.com/#search=webaudio)
@@ -72,3 +76,7 @@ new Recorder时支持传入参数，
 + getUserMedia
 
 [https://caniuse.com/#search=getusermedia](https://caniuse.com/#search=getusermedia)
+
++ Typed Arrays
+
+[https://caniuse.com/#search=typedarrays](https://caniuse.com/#search=typedarrays)

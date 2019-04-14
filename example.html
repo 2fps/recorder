@@ -22,10 +22,10 @@ document.getElementById('playRecord').addEventListener('click', playRecord);
 function startRecord() {
     if (!recorder) {
         recorder = new Recorder({
-            // 双声道录音有问题
-            sampleBits: 8,
-            sampleRate: 48000,
-            numChannels: 2,
+            // 以下是默认配置
+            sampleBits: 16,
+            // sampleRate: 浏览器默认的输入采样率,
+            numChannels: 1,
         });
     }
     recorder.start();
