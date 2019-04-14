@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     // 入口
-    entry: path.resolve(__dirname, 'src/recorder.js'),
+    entry: path.resolve(__dirname, 'src/recorder.ts'),
     devtool: 'source-map',
     output: {
         // 出口重命名js
@@ -14,12 +14,16 @@ module.exports = {
         libraryTarget: "umd"
     },
     module: {
-        rules:[{
+        rules:[/* {
             test: /(\.jsx|\.js)$/,
             use: {
                 loader: 'babel-loader'
             },
             exclude:path.resolve(__dirname, 'node_modules')
+        } */{
+            test: /\.tsx?$/,
+            use: 'ts-loader',
+            exclude: /node_modules/
         }]
     }
 }

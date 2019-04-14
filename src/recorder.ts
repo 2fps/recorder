@@ -1,24 +1,45 @@
-let isrecording = false;   // 是否正在录音
+declare var window: any;
+declare var Math: any;
+
+// 构造函数参数格式
+interface recorderConfig {
+    sampleBits?: number,         // 采样位数
+    sampleRate?: number,         // 采样率
+    numChannels?: number,        // 声道数
+}
 
 class Recorder {
+    private isrecording: boolean;           // 是否正在录音
+    private context: any;
+    private config: recorderConfig;
+    private size: number;                   // 录音文件总长度
+    private buffer: Array<Float32Array>;    // pcm音频数据搜集器
+    private PCMData: any;                   // 存放解析完成的pcm数据
+    private audioInput: any;
+    private inputSampleRate: number;        // 输入采样率
+    private source: any;                    // 音频输入
+    private recorder: any;
+    private inputSampleBits: number;        // 输入采样位数
+    private outputSampleRate: number;       // 输出采样率
+    private oututSampleBits: number;        // 输出采样位数
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
      * sampleRate，采样率，一般 11025、16000、22050、24000、44100、48000，默认为浏览器自带的采样率
      * numChannels，声道，1或2
      */
-    constructor(options = {}) {
+    constructor(options: recorderConfig = {}) {
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
 
         // 配置config，检查值是否有问题
         this.config = {
             // 采样数位 8, 16
-            sampleBits: [8, 16].includes(options.sampleBits) ? options.sampleBits : 16,
+            sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
             // 采样率
-            sampleRate: [11025, 16000, 22050, 24000, 44100, 48000].includes(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
+            sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
             // 声道数，1或2
-            numChannels: [1, 2].includes(options.numChannels) ? options.numChannels : 1,
+            numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
         };
         this.size = 0;              // 录音文件总长度
         this.buffer = [];           // 录音缓存
@@ -27,8 +48,8 @@ class Recorder {
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
-        this.createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
-        this.recorder = this.createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
+        let createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
+        this.recorder = createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
 
         // 音频采集
         this.recorder.onaudioprocess = e => {
@@ -66,13 +87,13 @@ class Recorder {
 
     // 开始录音
     start() {
-        if (isrecording) {
+        if (this.isrecording) {
             // 正在录音，则不允许
             return;
         }
         // 清空数据
         this.clear();
-        isrecording = true;
+        this.isrecording = true;
 
         navigator.mediaDevices.getUserMedia({
             audio: true
@@ -97,23 +118,9 @@ class Recorder {
 
     // 停止录音
     stop() {
-        isrecording = false;
+        this.isrecording = false;
         this.audioInput && this.audioInput.disconnect();
         this.recorder.disconnect();
-    }
-
-    // 清空
-    clear() {
-        this.buffer.length = 0;
-        this.size = 0;
-        this.PCMData = null;
-        this.audioInput = null;
-
-        if (this.source) {
-            // 录音前，关闭录音播放
-            this.source.disconnect();
-            this.source = null;
-        }
     }
 
     // 播放声音
@@ -154,8 +161,22 @@ class Recorder {
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 
+    // 清空
+    private clear() {
+        this.buffer.length = 0;
+        this.size = 0;
+        this.PCMData = null;
+        this.audioInput = null;
+
+        if (this.source) {
+            // 录音前，关闭录音播放
+            this.source.disconnect();
+            this.source = null;
+        }
+    }
+
     // 将二维数组转一维
-    flat() {
+    private flat() {
         // 合并
         let data = new Float32Array(this.size),
             offset = 0; // 偏移量计算
@@ -172,10 +193,10 @@ class Recorder {
     // 根据输入和输出的采样率压缩数据，
     // 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
     // 所以输入数据中每隔3取1位
-    compress() {
+    private compress() {
         let data = this.flat(),
         // 压缩，根据采样率进行压缩
-            compression = parseInt(this.inputSampleRate / this.outputSampleRate, 10) || 1,
+            compression = Math.max(Math.floor(this.inputSampleRate / this.outputSampleRate), 1),
             length = data.length / compression,
             result = new Float32Array(length),
             index = 0, j = 0;
@@ -193,7 +214,7 @@ class Recorder {
      * 转换到我们需要的对应格式的编码
      * return {DataView}    pcm编码的数据
      */
-    encodePCM() {
+    private encodePCM() {
         let bytes = this.compress(),
             sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits),
             offset = 0,
@@ -209,8 +230,8 @@ class Recorder {
                 // 8位采样位划分成2^8=256份，它的范围是0-255; 
                 // 对于8位的话，负数*128，正数*127，然后整体向上平移128(+128)，即可得到[0,255]范围的数据。
                 var val = s < 0 ? s * 128 : s * 127;
-                val = parseInt(val + 128);
-                data.setInt8(offset, val, true);
+                val = +val + 128;
+                data.setInt8(offset, val);
             }
         } else {
             for (var i = 0; i < bytes.length; i++, offset += 2) {
@@ -226,7 +247,7 @@ class Recorder {
 
     // 编码wav，一般wav格式是在pcm文件前增加44个字节的文件头，
     // 所以，此处只需要在pcm数据前增加下就行了。
-    encodeWAV() {
+    private encodeWAV() {
         var sampleRate = Math.min(this.inputSampleRate, this.outputSampleRate),
             sampleBits = Math.min(this.inputSampleBits, this.oututSampleBits),
             bytes = this.encodePCM(),
@@ -264,12 +285,16 @@ class Recorder {
         
         // 给wav头增加pcm体
         for (let i = 0; i < bytes.byteLength;) {
-            data.setUint8(offset, bytes.getUint8(i, true), true);
+            data.setUint8(offset, bytes.getUint8(i));
             offset++;
             i++;
         }
     
         return data;
+    }
+    // 异常处理
+    static throwError(message) {
+        throw new Error (message);
     }
 }
 
@@ -282,14 +307,6 @@ function writeString(data, offset, str) {
     for (var i = 0; i < str.length; i++) {
         data.setUint8(offset + i, str.charCodeAt(i));
     }
-}
-
-/** 
- * 通用方法
- */
-// 异常处理
-Recorder.throwError = function(message) {
-    throw new Error (message);
 }
 
 export default Recorder;
