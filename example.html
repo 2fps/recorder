@@ -6,6 +6,8 @@
     </head>
     <body>
         <input type="button" value="录音开启" id="startRecord" />
+        <input type="button" value="暂停" id="pauseRecord" />
+        <input type="button" value="恢复" id="resumeRecord" />
         <input type="button" value="录音停止" id="endRecord" />
         <input type="button" value="播放录音" id="playRecord" />
         <input type="button" value="下载pcm" id="downloadPCM" />
@@ -18,6 +20,8 @@ var oDiv = document.getElementById('box'),
     recorder = null;
 
 document.getElementById('startRecord').addEventListener('click', startRecord);
+document.getElementById('pauseRecord').addEventListener('click', pauseRecord);
+document.getElementById('resumeRecord').addEventListener('click', resumeRecord);
 document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
@@ -45,6 +49,12 @@ function downloadPCM() {
 }
 function downloadWAV() {
     recorder && recorder.downloadWAV();
+}
+function pauseRecord() {
+    recorder && recorder.pause();
+}
+function resumeRecord() {
+    recorder && recorder.resume();
 }
 </script>
 </html>

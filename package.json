@@ -11,7 +11,11 @@
   "keywords": [
     "recorder",
     "javascript",
-    "js"
+    "js",
+    "audio",
+    "webaudio",
+    "pcm",
+    "wav"
   ],
   "author": "2fps",
   "license": "MIT",
@@ -33,5 +37,8 @@
     "typescript": "^3.4.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
+  },
+  "dependencies": {
+    "lamejs": "^1.2.0"
   }
 }

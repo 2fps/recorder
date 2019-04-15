@@ -1,3 +1,6 @@
+// var lamejs = require("lamejs");
+import lamejs from 'lamejs';
+
 declare var window: any;
 declare var Math: any;
 declare var document: any;
@@ -31,6 +34,8 @@ class Recorder {
     private inputSampleBits: number;        // 输入采样位数
     private outputSampleRate: number;       // 输出采样率
     private oututSampleBits: number;        // 输出采样位数
+
+    public duration:number;                 // 录音时长
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
@@ -91,6 +96,8 @@ class Recorder {
                 this.buffer.push(dData);
                 this.size += offset;
             }
+            // 统计录音时长
+            this.duration += 4096 / this.inputSampleRate;
         }
     }
 
@@ -126,24 +133,27 @@ class Recorder {
     }
     
     // 暂停录音
-    pause() {
-
+    pause(): void {
+        this.audioInput && this.audioInput.disconnect();
+        this.recorder.disconnect();
     }
 
     // 继续录音
-    restart() {
-
+    resume(): void {
+        this.audioInput && this.audioInput.connect(this.recorder);
+        // 处理节点 recorder 连接到扬声器
+        this.recorder.connect(this.context.destination);
     }
 
     // 停止录音
-    stop() {
+    stop(): void {
         this.isrecording = false;
         this.audioInput && this.audioInput.disconnect();
         this.recorder.disconnect();
     }
 
     // 播放声音
-    play() {
+    play(): void {
         this.stop();
         // 关闭前一次音频播放
         this.source.stop();
@@ -156,8 +166,8 @@ class Recorder {
             // connect到扬声器
             this.source.connect(this.context.destination);
             this.source.start();
-        }, function() {
-            console.log('error');
+        }, function(e) {
+            Recorder.throwError(e);
         });
     }
 
@@ -212,6 +222,31 @@ class Recorder {
         this.download(wavBlob, 'recorder', 'wav');
     }
 
+    // 获取MP3格式的二进制数据
+    getMP3() {
+        // 先停止
+        this.stop();
+        let wavTemp = this.getWAV();
+
+        return Recorder.encodePM3(wavTemp);
+    }
+
+    // 获取MP3格式的blob数据
+    getMP3Blob() {
+        return new Blob(this.getMP3(), {type: 'audio/mp3'});
+    }
+
+    /**
+     * 销毁录音对象
+     * @param {*} fn        回调函数
+     * @memberof Recorder
+     */
+    destroy(fn) {
+        this.context.close().then(() => {
+            fn.call(this);
+        });
+    }
+
     /**
      * 下载录音文件
      * @private
@@ -233,14 +268,15 @@ class Recorder {
     }
 
     // 清空
-    private clear() {
+    private clear(): void {
         this.buffer.length = 0;
         this.size = 0;
         this.PCMData = null;
         this.audioInput = null;
+        this.duration = 0;
 
         // 录音前，关闭录音播放
-        this.source.stop();
+        this.source && this.source.stop();
     }
 
     // 将二维数组转一维
@@ -248,6 +284,7 @@ class Recorder {
         // 合并
         let data = new Float32Array(this.size),
             offset = 0; // 偏移量计算
+
         // 将二维数据，转成一维数据
         for (let i = 0; i < this.buffer.length; i++) {
             data.set(this.buffer[i], offset);
@@ -267,6 +304,7 @@ class Recorder {
             length = data.length / compression,
             result = new Float32Array(length),
             index = 0, j = 0;
+
         // 循环间隔 compression 位取一位数据
         while (index < length) {
             result[index] = data[j];
@@ -366,6 +404,32 @@ class Recorder {
     
         return data;
     }
+
+    // 利用lamejs将wav转化成mp3格式
+    static encodePM3(wavData) {
+        let wavHeader = lamejs.WavHeader.readHeader(new DataView(wavData)),
+            samples = new Int16Array(wavData, wavHeader.dataOffset, wavHeader.dataLen / 2),
+            buffer = [],
+            mp3enc = new lamejs.Mp3Encoder(wavHeader.channels, wavHeader.sampleRate, 128),
+            remaining = samples.length,
+            maxSamples = 1152;
+
+        for (let i = 0; remaining >= maxSamples; i += maxSamples) {
+            let mono = samples.subarray(i, i + maxSamples);
+            let mp3buf = mp3enc.encodeBuffer(mono);
+            if (mp3buf.length > 0) {
+                buffer.push(new Int8Array(mp3buf));
+            }
+            remaining -= maxSamples;
+        }
+        let mp3buf = mp3enc.flush();
+        if (mp3buf.length > 0) {
+            buffer.push(new Int8Array(mp3buf));
+        }
+
+        return buffer;
+    }
+
     // 异常处理
     static throwError(message) {
         throw new Error (message);
