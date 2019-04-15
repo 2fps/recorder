@@ -5,18 +5,28 @@
         <title>录音</title>
     </head>
     <body>
+        <h3>
+            操作
+        </h3>
         <input type="button" value="录音开启" id="startRecord" />
         <input type="button" value="暂停" id="pauseRecord" />
         <input type="button" value="恢复" id="resumeRecord" />
         <input type="button" value="录音停止" id="endRecord" />
         <input type="button" value="播放录音" id="playRecord" />
+        <h3>
+            下载
+        </h3>
         <input type="button" value="下载pcm" id="downloadPCM" />
         <input type="button" value="下载wav" id="downloadWAV" />
+        <h3>
+            录音时长：<span id="time">0</span>s
+        </h3>
     </body>
 <script type="text/javascript" src="./dist/recorder.js"></script>
 <script type="text/javascript">
 var oDiv = document.getElementById('box'),
     audio = document.getElementById('audio'),
+    oTime = document.getElementById('time'),
     recorder = null;
 
 document.getElementById('startRecord').addEventListener('click', startRecord);
@@ -35,8 +45,18 @@ function startRecord() {
             // sampleRate: 浏览器默认的输入采样率,
             numChannels: 1,
         });
+
+        recorder.onprocess = function(duration) {
+            oTime.innerText = duration;
+        }
     }
     recorder.start();
+}
+function pauseRecord() {
+    recorder && recorder.pause();
+}
+function resumeRecord() {
+    recorder && recorder.resume();
 }
 function endRecord (e) {
     recorder && recorder.stop();
@@ -48,13 +68,8 @@ function downloadPCM() {
     recorder && recorder.downloadPCM();
 }
 function downloadWAV() {
-    recorder && recorder.downloadWAV();
+    recorder && recorder.downloadWAV('11');
 }
-function pauseRecord() {
-    recorder && recorder.pause();
-}
-function resumeRecord() {
-    recorder && recorder.resume();
-}
+
 </script>
 </html>

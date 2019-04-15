@@ -1,5 +1,4 @@
-// var lamejs = require("lamejs");
-import lamejs from 'lamejs';
+// import * as lamejs from 'lamejs';
 
 declare var window: any;
 declare var Math: any;
@@ -22,6 +21,7 @@ interface dataview {
 
 class Recorder {
     private isrecording: boolean;           // 是否正在录音
+    private ispause: boolean;               // 是否是暂停
     private context: any;
     private config: recorderConfig;
     private size: number;                   // 录音文件总长度
@@ -35,7 +35,9 @@ class Recorder {
     private outputSampleRate: number;       // 输出采样率
     private oututSampleBits: number;        // 输出采样位数
 
-    public duration:number;                 // 录音时长
+    public duration: number;                 // 录音时长
+    // 正在录音时间，参数是已经录了多少时间了
+    public onprocess: (duration: number) => void; 
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
@@ -98,6 +100,8 @@ class Recorder {
             }
             // 统计录音时长
             this.duration += 4096 / this.inputSampleRate;
+            // 录音时长回调
+            this.onprocess && this.onprocess(this.duration);
         }
     }
 
@@ -134,15 +138,23 @@ class Recorder {
     
     // 暂停录音
     pause(): void {
-        this.audioInput && this.audioInput.disconnect();
-        this.recorder.disconnect();
+        if (this.isrecording && !this.ispause) {
+            this.ispause = true;
+            // 当前不暂停的时候才可以暂停
+            this.audioInput && this.audioInput.disconnect();
+            this.recorder.disconnect();
+        }
     }
 
     // 继续录音
     resume(): void {
-        this.audioInput && this.audioInput.connect(this.recorder);
-        // 处理节点 recorder 连接到扬声器
-        this.recorder.connect(this.context.destination);
+        if (this.isrecording && this.ispause) {
+            this.ispause = false;
+            // 暂停的才可以开始
+            this.audioInput && this.audioInput.connect(this.recorder);
+            // 处理节点 recorder 连接到扬声器
+            this.recorder.connect(this.context.destination);
+        }
     }
 
     // 停止录音
@@ -156,7 +168,7 @@ class Recorder {
     play(): void {
         this.stop();
         // 关闭前一次音频播放
-        this.source.stop();
+        this.source && this.source.stop();
 
         this.context.decodeAudioData(this.getWAV().buffer, buffer => {
             this.source = this.context.createBufferSource();
@@ -173,15 +185,12 @@ class Recorder {
 
     // 获取PCM编码的二进制数据
     getPCM() {
-        // 有pcm数据时，则直接使用缓存
-        if (!this.PCMData) {
-            // 二维转一维
-            let data = this.flat();
-            // 压缩或扩展
-            data = Recorder.compress(data, this.inputSampleRate, this.outputSampleRate);
-            // 按采样位数重新编码
-            this.PCMData = Recorder.encodePCM(data, this.oututSampleBits);
-        }
+        // 二维转一维
+        let data = this.flat();
+        // 压缩或扩展
+        data = Recorder.compress(data, this.inputSampleRate, this.outputSampleRate);
+        // 按采样位数重新编码
+        this.PCMData = Recorder.encodePCM(data, this.oututSampleBits);
 
         return this.PCMData;
     }
@@ -192,12 +201,12 @@ class Recorder {
     }
 
     // 下载录音的pcm数据
-    downloadPCM() {
+    downloadPCM(name: string = 'recorder') {
         // 先停止
         this.stop();
         let pcmBlob = this.getPCMBlob();
         
-        this.download(pcmBlob, 'recorder', 'pcm');
+        this.download(pcmBlob, name, 'pcm');
     }
 
     // 获取WAV编码的二进制数据
@@ -214,26 +223,12 @@ class Recorder {
     }
 
     // 下载录音的wav数据
-    downloadWAV() {
+    downloadWAV(name: string = 'recorder') {
         // 先停止
         this.stop();
         let wavBlob = this.getWAVBlob();
         
-        this.download(wavBlob, 'recorder', 'wav');
-    }
-
-    // 获取MP3格式的二进制数据
-    getMP3() {
-        // 先停止
-        this.stop();
-        let wavTemp = this.getWAV();
-
-        return Recorder.encodePM3(wavTemp);
-    }
-
-    // 获取MP3格式的blob数据
-    getMP3Blob() {
-        return new Blob(this.getMP3(), {type: 'audio/mp3'});
+        this.download(wavBlob, name, 'wav');
     }
 
     /**
@@ -274,6 +269,7 @@ class Recorder {
         this.PCMData = null;
         this.audioInput = null;
         this.duration = 0;
+        this.ispause = false;
 
         // 录音前，关闭录音播放
         this.source && this.source.stop();
@@ -403,31 +399,6 @@ class Recorder {
         }
     
         return data;
-    }
-
-    // 利用lamejs将wav转化成mp3格式
-    static encodePM3(wavData) {
-        let wavHeader = lamejs.WavHeader.readHeader(new DataView(wavData)),
-            samples = new Int16Array(wavData, wavHeader.dataOffset, wavHeader.dataLen / 2),
-            buffer = [],
-            mp3enc = new lamejs.Mp3Encoder(wavHeader.channels, wavHeader.sampleRate, 128),
-            remaining = samples.length,
-            maxSamples = 1152;
-
-        for (let i = 0; remaining >= maxSamples; i += maxSamples) {
-            let mono = samples.subarray(i, i + maxSamples);
-            let mp3buf = mp3enc.encodeBuffer(mono);
-            if (mp3buf.length > 0) {
-                buffer.push(new Int8Array(mp3buf));
-            }
-            remaining -= maxSamples;
-        }
-        let mp3buf = mp3enc.flush();
-        if (mp3buf.length > 0) {
-            buffer.push(new Int8Array(mp3buf));
-        }
-
-        return buffer;
     }
 
     // 异常处理
