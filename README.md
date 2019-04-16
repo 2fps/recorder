@@ -1,5 +1,5 @@
 # recorder
-原生js实现的web端录音
+js audio recorder plugin
 
 ## 使用
 ### demo使用
@@ -47,8 +47,9 @@ recorder.resume()
 recorder.stop();
 // 录音播放
 recorder.play();
-// 销毁录音实例，释放资源，fn为回调函数
+// 销毁录音实例，释放资源，fn为回调函数，
 recorder.destroy(fn);
+recorder = null;
 ```
 
 #### 下载功能
@@ -63,9 +64,12 @@ recorder.downloadPCM('重命名');
 
 #### 获取录音时长
 ```
+// 回调持续输出时长
 recorder.onprocess = function(duration) {
     console.log(duration);
 }
+// 手动获取录音时长
+console.log(recorder.duration);
 ```
 
 #### 默认配置

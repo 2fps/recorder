@@ -23,7 +23,7 @@ class Recorder {
     private isrecording: boolean;           // 是否正在录音
     private ispause: boolean;               // 是否是暂停
     private context: any;
-    private config: recorderConfig;
+    private config: recorderConfig;         // 配置
     private size: number;                   // 录音文件总长度
     private buffer: Array<Float32Array>;    // pcm音频数据搜集器
     private PCMData: any;                   // 存放解析完成的pcm数据
@@ -57,10 +57,10 @@ class Recorder {
             // 声道数，1或2
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
         };
-        this.size = 0;              // 录音文件总长度
-        this.buffer = [];           // 录音缓存
-        this.PCMData = null;        // 存储转换后的pcm数据
-        this.audioInput = null;     // 录音输入节点
+        // 设置采样的参数
+        this.inputSampleBits = 16;                          // 输入采样数位 8, 16
+        this.outputSampleRate = this.config.sampleRate;     // 输出采样率
+        this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
@@ -105,8 +105,13 @@ class Recorder {
         }
     }
 
-    // 开始录音
-    start() {
+    /**
+     * 开始录音
+     *
+     * @returns {void}
+     * @memberof Recorder
+     */
+    start(): void {
         if (this.isrecording) {
             // 正在录音，则不允许
             return;
@@ -129,14 +134,14 @@ class Recorder {
             this.audioInput.connect(this.recorder);
             // 处理节点 recorder 连接到扬声器
             this.recorder.connect(this.context.destination);
-            // 设置压缩参数
-            this.inputSampleBits = 16;                          // 输入采样数位 8, 16
-            this.outputSampleRate = this.config.sampleRate;     // 输出采样率
-            this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
         });
     }
     
-    // 暂停录音
+    /**
+     * 暂停录音
+     *
+     * @memberof Recorder
+     */
     pause(): void {
         if (this.isrecording && !this.ispause) {
             this.ispause = true;
@@ -146,7 +151,11 @@ class Recorder {
         }
     }
 
-    // 继续录音
+    /**
+     * 继续录音
+     *
+     * @memberof Recorder
+     */
     resume(): void {
         if (this.isrecording && this.ispause) {
             this.ispause = false;
@@ -157,14 +166,22 @@ class Recorder {
         }
     }
 
-    // 停止录音
+    /**
+     * 停止录音
+     *
+     * @memberof Recorder
+     */
     stop(): void {
         this.isrecording = false;
         this.audioInput && this.audioInput.disconnect();
         this.recorder.disconnect();
     }
 
-    // 播放声音
+    /**
+     * 播放录音
+     *
+     * @memberof Recorder
+     */
     play(): void {
         this.stop();
         // 关闭前一次音频播放
@@ -183,7 +200,12 @@ class Recorder {
         });
     }
 
-    // 获取PCM编码的二进制数据
+    /**
+     * 获取PCM编码的二进制数据(dataview)
+     *
+     * @returns {dataview}  PCM二进制数据
+     * @memberof Recorder
+     */
     getPCM() {
         // 二维转一维
         let data = this.flat();
@@ -195,13 +217,23 @@ class Recorder {
         return this.PCMData;
     }
 
-    // 获取不压缩的PCM格式的编码
+    /**
+     * 获取PCM格式的blob数据
+     *
+     * @returns { blob }  PCM格式的blob数据
+     * @memberof Recorder
+     */
     getPCMBlob() {
         return new Blob([ this.getPCM() ]);
     }
 
-    // 下载录音的pcm数据
-    downloadPCM(name: string = 'recorder') {
+    /**
+     * 下载录音pcm数据
+     *
+     * @param {string} [name='recorder']    重命名的名字
+     * @memberof Recorder
+     */
+    downloadPCM(name: string = 'recorder'): void {
         // 先停止
         this.stop();
         let pcmBlob = this.getPCMBlob();
@@ -209,21 +241,37 @@ class Recorder {
         this.download(pcmBlob, name, 'pcm');
     }
 
-    // 获取WAV编码的二进制数据
+    /**
+     * 获取WAV编码的二进制数据(dataview)
+     *
+     * @returns {dataview}  WAV编码的二进制数据
+     * @memberof Recorder
+     */
     getWAV() {
         let pcmTemp = this.getPCM(),
-            wavTemp = Recorder.encodeWAV(pcmTemp, this.inputSampleRate, this.outputSampleRate, this.config.numChannels, this.oututSampleBits);
+            wavTemp = Recorder.encodeWAV(pcmTemp, this.inputSampleRate, 
+                this.outputSampleRate, this.config.numChannels, this.oututSampleBits);
 
         return wavTemp;
     }
 
-    // 获取不压缩的WAV格式的编码
+    /**
+     * 获取WAV音频的blob数据
+     *
+     * @returns { blob }    wav格式blob数据
+     * @memberof Recorder
+     */
     getWAVBlob() {
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 
-    // 下载录音的wav数据
-    downloadWAV(name: string = 'recorder') {
+    /**
+     * 下载录音的wav数据
+     *
+     * @param {string} [name='recorder']    重命名的名字
+     * @memberof Recorder
+     */
+    downloadWAV(name: string = 'recorder'): void {
         // 先停止
         this.stop();
         let wavBlob = this.getWAVBlob();
@@ -236,9 +284,9 @@ class Recorder {
      * @param {*} fn        回调函数
      * @memberof Recorder
      */
-    destroy(fn) {
+    destroy(fn): void {
         this.context.close().then(() => {
-            fn.call(this);
+            fn && fn.call(this);
         });
     }
 
@@ -262,7 +310,12 @@ class Recorder {
         }
     }
 
-    // 清空
+    /**
+     * 清空状态，重新开始录音（变量初始化）
+     *
+     * @private
+     * @memberof Recorder
+     */
     private clear(): void {
         this.buffer.length = 0;
         this.size = 0;
@@ -275,7 +328,13 @@ class Recorder {
         this.source && this.source.stop();
     }
 
-    // 将二维数组转一维
+    /**
+     * 将二维数组转一维
+     * 
+     * @private
+     * @returns  {float32array}     音频pcm二进制数据
+     * @memberof Recorder
+     */
     private flat() {
         // 合并
         let data = new Float32Array(this.size),
@@ -290,11 +349,21 @@ class Recorder {
         return data;
     }
 
-    // 数据合并压缩
-    // 根据输入和输出的采样率压缩数据，
-    // 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
-    // 所以输入数据中每隔3取1位
-    static compress(data, inputSampleRate, outputSampleRate) {
+
+    /**
+     * 数据合并压缩
+     * 根据输入和输出的采样率压缩数据，
+     * 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
+     * 所以输入数据中每隔3取1位
+     * 
+     * @static
+     * @param {float32array} data       [-1, 1]的pcm数据
+     * @param {number} inputSampleRate  输入采样率
+     * @param {number} outputSampleRate 输出采样率
+     * @returns  {float32array}         压缩处理后的二进制数据
+     * @memberof Recorder
+     */
+    static compress(data, inputSampleRate: number, outputSampleRate: number) {
         // 压缩，根据采样率进行压缩
         let compression = Math.max(Math.floor(inputSampleRate / outputSampleRate), 1),
             length = data.length / compression,
@@ -313,7 +382,12 @@ class Recorder {
 
     /**
      * 转换到我们需要的对应格式的编码
-     * return {DataView}    pcm编码的数据
+     * 
+     * @static
+     * @param {float32array} bytes      pcm二进制数据
+     * @param {number} sampleBits       采样位数
+     * @returns {dataview}              pcm二进制数据
+     * @memberof Recorder
      */
     static encodePCM(bytes, sampleBits: number): dataview {
         let offset = 0,
@@ -347,6 +421,7 @@ class Recorder {
     /**
      * 编码wav，一般wav格式是在pcm文件前增加44个字节的文件头，
      * 所以，此处只需要在pcm数据前增加下就行了。
+     * 
      * @static
      * @param {DataView} bytes           pcm二进制数据
      * @param {Number} inputSampleRate   输入采样率
@@ -401,7 +476,12 @@ class Recorder {
         return data;
     }
 
-    // 异常处理
+    /**
+     * 异常处理
+     * @static
+     * @param {*} message   错误消息
+     * @memberof Recorder
+     */
     static throwError(message) {
         throw new Error (message);
     }
@@ -409,10 +489,11 @@ class Recorder {
 
 /**
  * 在data中的offset位置开始写入str字符串
- * @param {TypedArrays} data 二进制数据
- * @param {String}      str  字符串
+ * @param {TypedArrays} data    二进制数据
+ * @param {Number}      offset  偏移量
+ * @param {String}      str     字符串
  */
-function writeString(data, offset, str) {
+function writeString(data, offset, str): void {
     for (var i = 0; i < str.length; i++) {
         data.setUint8(offset + i, str.charCodeAt(i));
     }
