@@ -1,21 +1,22 @@
 {
   "name": "js-audio-recorder",
   "version": "0.1.1",
-  "description": "原生js实现的web端录音插件",
-  "main": "./dist/recorder.js",
-  "types": "./src/a.ts",
+  "description": "js audio recorder plugin",
+  "main": "./src/recorder.js",
   "scripts": {
-    "dev": "webpack --mode=development",
+    "dev": "webpack-dev-server --open --watch --inline --mode=development",
     "build": "webpack --mode=production"
   },
   "keywords": [
     "recorder",
     "javascript",
     "js",
+    "html5",
     "audio",
     "webaudio",
     "pcm",
-    "wav"
+    "wav",
+    "plugin"
   ],
   "author": "2fps",
   "license": "MIT",
@@ -26,19 +27,18 @@
   "bugs": {
     "url": "https://github.com/2fps/recorder/issues"
   },
-  "homepage": "https://github.com/2fps/recorder#readme",
+  "homepage": "https://github.com/2fps/recorder",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.5",
     "babel-preset-es2015": "^6.24.1",
+    "html-webpack-plugin": "^3.2.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.4.3",
     "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.0"
-  },
-  "dependencies": {
-    "lamejs": "^1.2.0"
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.3.1"
   }
 }

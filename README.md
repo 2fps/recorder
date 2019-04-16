@@ -4,17 +4,22 @@
 ## 使用
 ### demo使用
 ```
-npm install http-server -g
-http-server (或双击example.html)
+npm ci 或 npm i
+npm run dev
 ```
-访问 http://127.0.0.1:8080/example.html
+
+### 编译
+```
+npm run build
+```
 
 ### 使用方法
 #### 引入方式
 + script标签方式
 
-直接引入dist下的recorder.js即可
 ```
+<script type="text/javascript" src="./dist/recorder.js"></script>
+
 let recorder = new Recorder();
 ```
 + npm方式：
@@ -30,14 +35,37 @@ import Recorder from 'js-audio-recorder';
 let recorder = new Recorder();
 ```
 
-#### 调用方法
+#### 基本用法
 ```
 // 开始录音
 recorder.start();
+// 暂停录音
+recorder.pause();
+// 继续录音
+recorder.resume()
 // 结束录音
 recorder.stop();
 // 录音播放
 recorder.play();
+// 销毁录音实例，释放资源，fn为回调函数
+recorder.destroy(fn);
+```
+
+#### 下载功能
+```
+// 下载pcm文件
+recorder.downloadPCM();
+// 下载wav文件
+recorder.downloadWAV();
+// 重命名pcm文件，wav也支持
+recorder.downloadPCM('重命名');
+```
+
+#### 获取录音时长
+```
+recorder.onprocess = function(duration) {
+    console.log(duration);
+}
 ```
 
 #### 默认配置
@@ -59,14 +87,6 @@ new Recorder时支持传入参数，
 
 1. 使用127.0.0.1或localhost尝试，因为getUserMedia在高版本的chrome下需要使用https。
 
-### 其他资源
-
-+ [webAudio播放本地音乐](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E6%92%AD%E6%94%BE%E6%9C%AC%E5%9C%B0%E9%9F%B3%E4%B9%90)
-+ [webAudio制造噪音并播放](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E5%88%B6%E9%80%A0%E5%99%AA%E9%9F%B3%E5%B9%B6%E6%92%AD%E6%94%BE)
-+ [web Audio实现pcm音频数据收集](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E5%AE%9E%E7%8E%B0pcm%E9%9F%B3%E9%A2%91%E6%95%B0%E6%8D%AE%E6%94%B6%E9%9B%86)
-+ [js实现pcm数据编码](https://github.com/2fps/demo/tree/master/view/2019/04/js%E5%AE%9E%E7%8E%B0pcm%E6%95%B0%E6%8D%AE%E7%BC%96%E7%A0%81)
-+ [基于阿里云实现简单的语音识别功能(node)](https://github.com/2fps/demo/tree/master/view/2019/01/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8A%9F%E8%83%BD(node))
-
 ### 浏览器兼容性
 主要是以下几个方面：
 + Web Audio Api
@@ -80,3 +100,15 @@ new Recorder时支持传入参数，
 + Typed Arrays
 
 [https://caniuse.com/#search=typedarrays](https://caniuse.com/#search=typedarrays)
+
+### 其他资源
+
++ [webAudio播放本地音乐](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E6%92%AD%E6%94%BE%E6%9C%AC%E5%9C%B0%E9%9F%B3%E4%B9%90)
++ [webAudio制造噪音并播放](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E5%88%B6%E9%80%A0%E5%99%AA%E9%9F%B3%E5%B9%B6%E6%92%AD%E6%94%BE)
++ [web Audio实现pcm音频数据收集](https://github.com/2fps/demo/tree/master/view/2019/04/webAudio%E5%AE%9E%E7%8E%B0pcm%E9%9F%B3%E9%A2%91%E6%95%B0%E6%8D%AE%E6%94%B6%E9%9B%86)
++ [js实现pcm数据编码](https://github.com/2fps/demo/tree/master/view/2019/04/js%E5%AE%9E%E7%8E%B0pcm%E6%95%B0%E6%8D%AE%E7%BC%96%E7%A0%81)
++ [基于阿里云实现简单的语音识别功能(node)](https://github.com/2fps/demo/tree/master/view/2019/01/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8A%9F%E8%83%BD(node))
+
+
+
+
