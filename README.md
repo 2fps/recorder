@@ -1,5 +1,10 @@
 # recorder
-js audio recorder plugin
+js audio recorder plugin.
+
++ 支持录音，暂停，恢复，和录音播放。
++ 支持录音时长显示。
++ 支持导出录音文件，格式为pcm或wav。
++ 支持录音波形显示，可自己定制。
 
 ## 使用
 ### demo使用
@@ -71,6 +76,12 @@ recorder.onprocess = function(duration) {
 // 手动获取录音时长
 console.log(recorder.duration);
 ```
+
+#### 录音波形显示
+```
+recorder.getRecordAnalyseData();
+```
+返回的是一个1024长的，0-255大小的Uint8Array类型。用户可以根据这些数据自定义录音波形。
 
 #### 默认配置
 sampleBits，采样位数，默认是16  

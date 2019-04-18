@@ -34,6 +34,7 @@ class Recorder {
     private inputSampleBits: number;        // 输入采样位数
     private outputSampleRate: number;       // 输出采样率
     private oututSampleBits: number;        // 输出采样位数
+    private analyser: any;
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
@@ -61,7 +62,9 @@ class Recorder {
         this.inputSampleBits = 16;                          // 输入采样数位 8, 16
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
         this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
-        this.buffer = [];
+        this.buffer = [];                                   // pcm数据缓存
+        this.analyser = this.context.createAnalyser();      // 
+        this.analyser.fftSize = 2048;
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
@@ -107,6 +110,20 @@ class Recorder {
     }
 
     /**
+     * 获取当前录音的波形数据，
+     * 调取频率由外部控制。
+     * 
+     * @memberof Recorder
+     */
+    getRecordAnalyseData() {
+        let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+        // 将数据拷贝到dataArray中。
+        this.analyser.getByteTimeDomainData(dataArray);
+
+        return dataArray;
+    }
+
+    /**
      * 开始录音
      *
      * @returns {void}
@@ -132,7 +149,8 @@ class Recorder {
             Recorder.throwError(error.name + " : " + error.message);
         }).then(() => {
             // audioInput 为声音源，连接到处理节点 recorder
-            this.audioInput.connect(this.recorder);
+            this.audioInput.connect(this.analyser);
+            this.analyser.connect(this.recorder);
             // 处理节点 recorder 连接到扬声器
             this.recorder.connect(this.context.destination);
         });
@@ -147,7 +165,6 @@ class Recorder {
         if (this.isrecording && !this.ispause) {
             this.ispause = true;
             // 当前不暂停的时候才可以暂停
-            this.audioInput && this.audioInput.disconnect();
             this.recorder.disconnect();
         }
     }
@@ -161,7 +178,8 @@ class Recorder {
         if (this.isrecording && this.ispause) {
             this.ispause = false;
             // 暂停的才可以开始
-            this.audioInput && this.audioInput.connect(this.recorder);
+            this.audioInput && this.audioInput.connect(this.analyser);
+            this.analyser.connect(this.recorder);
             // 处理节点 recorder 连接到扬声器
             this.recorder.connect(this.context.destination);
         }
