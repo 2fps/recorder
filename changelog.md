@@ -1,9 +1,11 @@
 ## 修改记录
 
 ### latest(dev分支)
++ 处理录音残留[issues 2](https://github.com/2fps/recorder/issues/2)。
++ 修改destory参数是可选的，但不穿提示错误的问题。
++ 增加createAnalyser node，暴露接口给外部实现录音图形化。
 
 ### 0.2.1 [2019-04-16]
-+ 增加createAnalyser node，暴露接口给外部实现录音图形化。
 + 修改dist版本有问题。
 
 ### 0.2.0 [2019-04-16]

@@ -33,7 +33,7 @@ var oDiv = document.getElementById('box'),
     recorder = null,
     oCanvas = document.getElementById("canvas"),        // 显示波形的canvas
     ctx = oCanvas.getContext("2d"),
-    drawId = null;
+    drawRecordId = null;
 
 // 按钮事件绑定
 document.getElementById('startRecord').addEventListener('click', startRecord);
@@ -43,6 +43,9 @@ document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('click', downloadWAV);
+
+// canvas背景初始化
+initCanvasBg()
 
 // 开始录音
 function startRecord() {
@@ -60,7 +63,7 @@ function startRecord() {
     }
     recorder.start();
     // 开始绘制canvas
-    draw();
+    drawRecord();
 }
 // 暂停录音
 function pauseRecord() {
@@ -73,14 +76,14 @@ function resumeRecord() {
 // 结束录音
 function endRecord (e) {
     recorder && recorder.stop();
-    drawId && cancelAnimationFrame(drawId);
-    drawId = null;
+    drawRecordId && cancelAnimationFrame(drawRecordId);
+    drawRecordId = null;
 }
 // 播放录音
 function playRecord() {
     recorder && recorder.play();
-    drawId && cancelAnimationFrame(drawId);
-    drawId = null;
+    drawRecordId && cancelAnimationFrame(drawRecordId);
+    drawRecordId = null;
 }
 // 下载pcm
 function downloadPCM() {
@@ -91,9 +94,9 @@ function downloadWAV() {
     recorder && recorder.downloadWAV();
 }
 // canvas波形绘制函数
-function draw() {
+function drawRecord() {
     // 用requestAnimationFrame稳定60fps绘制
-    drawId = requestAnimationFrame(draw);
+    drawRecordId = requestAnimationFrame(drawRecord);
 
     // 实时获取音频大小数据
     var dataArray = recorder.getRecordAnalyseData(),
@@ -130,5 +133,13 @@ function draw() {
     ctx.lineTo(canvas.width, canvas.height / 2);
     ctx.stroke();
 }
+
+// canvas背景初始化
+function initCanvasBg() {
+    ctx.fillStyle = 'rgb(200, 200, 200)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+
 </script>
 </html>

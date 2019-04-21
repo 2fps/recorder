@@ -20,20 +20,20 @@ interface dataview {
 }
 
 class Recorder {
-    private isrecording: boolean;           // 是否正在录音
-    private ispause: boolean;               // 是否是暂停
+    private isrecording: boolean;               // 是否正在录音
+    private ispause: boolean;                   // 是否是暂停
     private context: any;
-    private config: recorderConfig;         // 配置
-    private size: number;                   // 录音文件总长度
-    private buffer: Array<Float32Array>;    // pcm音频数据搜集器
-    private PCMData: any;                   // 存放解析完成的pcm数据
+    private config: recorderConfig;             // 配置
+    private size: number;                       // 录音文件总长度
+    private buffer: Array<Float32Array> = [];   // pcm音频数据搜集器
+    private PCMData: any;                       // 存放解析完成的pcm数据
     private audioInput: any;
-    private inputSampleRate: number;        // 输入采样率
-    private source: any;                    // 音频输入
+    private inputSampleRate: number;            // 输入采样率
+    private source: any;                        // 音频输入
     private recorder: any;
-    private inputSampleBits: number;        // 输入采样位数
-    private outputSampleRate: number;       // 输出采样率
-    private oututSampleBits: number;        // 输出采样位数
+    private inputSampleBits: number = 16;       // 输入采样位数
+    private outputSampleRate: number;           // 输出采样率
+    private oututSampleBits: number;            // 输出采样位数
     private analyser: any;
 
     public duration: number;                 // 录音时长
@@ -46,8 +46,9 @@ class Recorder {
      * numChannels，声道，1或2
      */
     constructor(options: recorderConfig = {}) {
-        this.context = new (window.AudioContext || window.webkitAudioContext)();
-        this.inputSampleRate = this.context.sampleRate;     // 获取当前输入的采样率
+        // 临时audioContext，为了获取输入采样率的
+        let context = new (window.AudioContext || window.webkitAudioContext)();
+        this.inputSampleRate = context.sampleRate;     // 获取当前输入的采样率
 
         // 配置config，检查值是否有问题
         this.config = {
@@ -59,11 +60,18 @@ class Recorder {
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
         };
         // 设置采样的参数
-        this.inputSampleBits = 16;                          // 输入采样数位 8, 16
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
         this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
-        this.buffer = [];                                   // pcm数据缓存
-        this.analyser = this.context.createAnalyser();      // 
+    }
+
+    initRecorder(): void {
+        if (this.context) {
+            // 关闭先前的录音实例，因为前次的实例会缓存少量数据
+            this.destroy();
+        }
+        this.context = new (window.AudioContext || window.webkitAudioContext)();
+        
+        this.analyser = this.context.createAnalyser();      // 录音分析节点
         this.analyser.fftSize = 2048;
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
@@ -110,20 +118,6 @@ class Recorder {
     }
 
     /**
-     * 获取当前录音的波形数据，
-     * 调取频率由外部控制。
-     * 
-     * @memberof Recorder
-     */
-    getRecordAnalyseData() {
-        let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-        // 将数据拷贝到dataArray中。
-        this.analyser.getByteTimeDomainData(dataArray);
-
-        return dataArray;
-    }
-
-    /**
      * 开始录音
      *
      * @returns {void}
@@ -136,6 +130,7 @@ class Recorder {
         }
         // 清空数据
         this.clear();
+        this.initRecorder();
         this.isrecording = true;
 
         navigator.mediaDevices.getUserMedia({
@@ -211,12 +206,37 @@ class Recorder {
 
             // 设置数据
             this.source.buffer = buffer;
-            // connect到扬声器
-            this.source.connect(this.context.destination);
+            // connect到分析器，还是用录音的，因为播放时时不能录音的
+            this.source.connect(this.analyser);
+            this.analyser.connect(this.context.destination);
             this.source.start();
         }, function(e) {
             Recorder.throwError(e);
         });
+    }
+
+    /**
+     * 获取当前录音的波形数据，
+     * 调取频率由外部控制。
+     * 
+     * @memberof Recorder
+     */
+    getRecordAnalyseData() {
+        let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+        // 将数据拷贝到dataArray中。
+        this.analyser.getByteTimeDomainData(dataArray);
+
+        return dataArray;
+    }
+
+    /**
+     * 获取录音播放时的波形数据，
+     * 
+     * @memberof Recorder
+     */
+    getPlayAnalyseData() {
+        // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
+        return this.getRecordAnalyseData();
     }
 
     /**
@@ -303,7 +323,7 @@ class Recorder {
      * @param {*} fn        回调函数
      * @memberof Recorder
      */
-    destroy(fn): void {
+    destroy(fn?): void {
         this.context.close().then(() => {
             fn && fn.call(this);
         });
