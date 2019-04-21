@@ -25,6 +25,10 @@
             声音波形图如下：
         </h3>
         <canvas id="canvas"></canvas>
+        <h3>
+            加载播放：
+        </h3>
+        <input type="file" value="加载文件播放" id="uploadAudio" />
     </body>
 <script type="text/javascript">
 var oDiv = document.getElementById('box'),
@@ -43,6 +47,7 @@ document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('click', downloadWAV);
+document.getElementById('uploadAudio').addEventListener('change', uploadAudio);
 
 // canvas背景初始化
 initCanvasBg()
@@ -138,6 +143,11 @@ function drawRecord() {
 function initCanvasBg() {
     ctx.fillStyle = 'rgb(200, 200, 200)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// 加载音频文件并播放
+function uploadAudio(e) {
+    Recorder.playAudio(this.files[0]);
 }
 
 

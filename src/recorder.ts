@@ -64,6 +64,9 @@ class Recorder {
         this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
     }
 
+    /** 
+     * 初始化录音实例
+     */
     initRecorder(): void {
         if (this.context) {
             // 关闭先前的录音实例，因为前次的实例会缓存少量数据
@@ -388,6 +391,13 @@ class Recorder {
         return data;
     }
 
+    static playAudio(blob) {
+        let oAudio = document.createElement('audio');
+
+        oAudio.src = window.URL.createObjectURL(blob);
+        // 播放音乐
+        oAudio.play();
+    }
 
     /**
      * 数据合并压缩

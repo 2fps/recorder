@@ -83,6 +83,12 @@ recorder.getRecordAnalyseData();
 ```
 返回的是一个1024长的，0-255大小的Uint8Array类型。用户可以根据这些数据自定义录音波形。
 
+#### 播放外部音频文件
+```
+Recorder.playAudio(/* 放入blob数据 */);
+```
+支持的音乐格式由浏览器的audio支持的类型决定。
+
 #### 默认配置
 sampleBits，采样位数，默认是16  
 sampleRate，采样频率，浏览器默认的，我的chrome是48000  
