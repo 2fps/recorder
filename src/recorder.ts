@@ -74,8 +74,8 @@ class Recorder {
         }
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         
-        this.analyser = this.context.createAnalyser();      // 录音分析节点
-        this.analyser.fftSize = 2048;
+        this.analyser = this.context.createAnalyser();  // 录音分析节点
+        this.analyser.fftSize = 2048;                   // 表示存储频域的大小
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
@@ -254,9 +254,7 @@ class Recorder {
         // 压缩或扩展
         data = Recorder.compress(data, this.inputSampleRate, this.outputSampleRate);
         // 按采样位数重新编码
-        this.PCMData = Recorder.encodePCM(data, this.oututSampleBits);
-
-        return this.PCMData;
+        return Recorder.encodePCM(data, this.oututSampleBits);
     }
 
     /**
@@ -378,6 +376,9 @@ class Recorder {
      * @memberof Recorder
      */
     private flat() {
+        if (this.PCMData) {
+            return this.PCMData;
+        }
         // 合并
         let data = new Float32Array(this.size),
             offset = 0; // 偏移量计算
@@ -388,10 +389,16 @@ class Recorder {
             offset += this.buffer[i].length;
         }
 
-        return data;
+        return this.PCMData = data;
     }
 
-    static playAudio(blob) {
+    /** 
+     * 播放外部音乐文件
+     * 
+     * @param {float32array} blob    blob音频数据
+     * @memberof Recorder
+     */
+    static playAudio(blob): void {
         let oAudio = document.createElement('audio');
 
         oAudio.src = window.URL.createObjectURL(blob);
@@ -438,7 +445,7 @@ class Recorder {
      * @returns {dataview}              pcm二进制数据
      * @memberof Recorder
      */
-    static encodePCM(bytes, sampleBits: number): dataview {
+    static encodePCM(bytes, sampleBits: number)  {
         let offset = 0,
             dataLength = bytes.length * (sampleBits / 8),
             buffer = new ArrayBuffer(dataLength),
