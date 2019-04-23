@@ -20,11 +20,15 @@ let config = {
         libraryTarget: "umd"
     },
     module: {
+        unknownContextCritical : false,
         rules:[{
             test: /\.tsx?$/,
             use: 'ts-loader',
             exclude: /node_modules/
         }]
+    },
+    resolve: {
+        extensions: ['.js', '.ts', '.json'],
     },
     plugins: [
         // 文件注释插件

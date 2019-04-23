@@ -1,13 +1,16 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "sourceMap": true,
         "target": "es5",
+        "baseUrl": "./",
         "allowJs": true
     },
     "include": [
-        "./src/*"
+        "src/**/*"
     ],
     "exclude": [
-        "./node_modules"
+        "./node_modules",
+        "*.test.ts"
     ]
 }

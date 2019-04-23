@@ -1,8 +1,8 @@
 // import * as lamejs from 'lamejs';
 
-declare var window: any;
-declare var Math: any;
-declare var document: any;
+declare let window: any;
+declare let Math: any;
+declare let document: any;
 
 // 构造函数参数格式
 interface recorderConfig {
