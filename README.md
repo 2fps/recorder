@@ -104,6 +104,11 @@ new Recorder时支持传入参数，
 }
 ```
 
+### 任务列表
+- [ ] 拆分recorder到各个功能模块。
+- [ ] 增加test代码。
+- [ ] 功能完善。
+
 ### 注意
 
 1. 使用127.0.0.1或localhost尝试，因为getUserMedia在高版本的chrome下需要使用https。
