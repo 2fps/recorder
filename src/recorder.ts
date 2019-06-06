@@ -248,7 +248,7 @@ class Recorder {
      * @returns {dataview}  PCM二进制数据
      * @memberof Recorder
      */
-    getPCM() {
+    private getPCM() {
         // 二维转一维
         let data = this.flat();
         // 压缩或扩展
@@ -287,7 +287,7 @@ class Recorder {
      * @returns {dataview}  WAV编码的二进制数据
      * @memberof Recorder
      */
-    getWAV() {
+    private getWAV() {
         let pcmTemp = this.getPCM(),
             wavTemp = Recorder.encodeWAV(pcmTemp, this.inputSampleRate, 
                 this.outputSampleRate, this.config.numChannels, this.oututSampleBits);

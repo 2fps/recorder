@@ -9,7 +9,7 @@ js audio recorder plugin.
 ## 使用
 ### demo使用
 ```
-npm ci 或 npm i
+npm ci (推荐) 或 npm install
 npm run dev
 ```
 
@@ -55,6 +55,14 @@ recorder.play();
 // 销毁录音实例，释放资源，fn为回调函数，
 recorder.destroy(fn);
 recorder = null;
+```
+
+#### 直接获取录音数据
+```
+// 获取 PCM 数据(Blob)
+recorder.getPCMBlob();
+// 获取 WAV 数据(Blob)
+recorder.getWAVBlob();
 ```
 
 #### 下载功能

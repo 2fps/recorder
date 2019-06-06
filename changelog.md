@@ -1,6 +1,9 @@
 ## 修改记录
 
 ### latest(dev分支)
+
++ 增加jest-html-reporters依赖，生成html版测试报告。
++ 增加jest测试。
 + 支持播放外部音频文件。
 + 处理录音残留[issues 2](https://github.com/2fps/recorder/issues/2)。
 + 修改destory参数是可选的，但不穿提示错误的问题。
