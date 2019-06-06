@@ -13,8 +13,32 @@ test('get inputSampleRate', () => {
 });
 
 // 开始
-recorder.start();
-
 test('start state check', () => {
+    recorder.start();
+
     expect(recorder.isrecording).toBe(true);
+    expect(recorder.ispause).toBe(false);
+});
+
+// 暂停
+test('operation pause', () => {
+    recorder.pause();
+
+    expect(recorder.isrecording).toBe(true);
+    expect(recorder.ispause).toBe(true);
+});
+
+// 恢复
+test('operation resume', () => {
+    recorder.resume();
+
+    expect(recorder.isrecording).toBe(true);
+    expect(recorder.ispause).toBe(false);
+});
+
+// 结束
+test('stop record', () => {
+    recorder.stop();
+
+    expect(recorder.isrecording).toBe(false);
 });
