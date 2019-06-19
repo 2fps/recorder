@@ -3,6 +3,8 @@
 declare let window: any;
 declare let Math: any;
 declare let document: any;
+declare let navigator: any;
+declare let Promise: any;
 
 // 构造函数参数格式
 interface recorderConfig {
@@ -82,6 +84,8 @@ class Recorder {
         let createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
         this.recorder = createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
 
+        // 兼容 getUserMedia
+        this.initUserMedia();
         // 音频采集
         this.recorder.onaudioprocess = e => {
             // getChannelData返回Float32Array类型的pcm数据
@@ -137,7 +141,8 @@ class Recorder {
         this.isrecording = true;
 
         navigator.mediaDevices.getUserMedia({
-            audio: true
+            audio: true,
+            video: false
         }).then(stream => {
             // audioInput表示音频源节点
             // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
@@ -240,6 +245,27 @@ class Recorder {
     getPlayAnalyseData() {
         // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
         return this.getRecordAnalyseData();
+    }
+    
+    // getUserMedia 版本兼容
+    private initUserMedia() {
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
+        }
+        
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function(constraints) {
+                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('浏览器不支持 getUserMedia '));
+                }
+                
+                return new Promise(function(resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
+            }
+        }
     }
 
     /**

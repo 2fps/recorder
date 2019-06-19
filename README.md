@@ -10,6 +10,9 @@ js audio recorder plugin.
 + 支持录音波形显示，可自己定制。
 
 ## 使用
+### 在线地址
+[recorder](https://www.zhuyuntao.com/2019/06/18/recorder/)
+
 ### demo使用
 ```
 npm ci (推荐) 或 npm install
@@ -121,6 +124,10 @@ new Recorder时支持传入参数，
 - [ ] promise。
 - [ ] 支持async, await。
 - [ ] 功能完善。
+- [ ] 兼容性测试。
+
+### 已知bug
+1. FF 63.0.3 在录音停止后，录音时长无法暂停。
 
 ### 注意
 
