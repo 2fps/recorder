@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "webpack-dev-server --open --watch --inline --mode=development",
     "start": "webpack-dev-server --open --watch --inline --mode=development",
+    "https": "webpack-dev-server --https --open --watch --inline --mode=development --host",
     "build": "webpack --mode=production",
     "test": "jest"
   },
@@ -46,5 +47,8 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.3.1"
+  },
+  "dependencies": {
+    "vconsole": "^3.3.0"
   }
 }

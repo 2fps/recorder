@@ -5,19 +5,21 @@ const package = require('./package.json');
 
 let config = {
     // 入口
-    entry: path.resolve(__dirname, 'src/recorder.ts'),
+    entry: {
+        Recorder: path.resolve(__dirname, 'src/recorder.ts'),
+    },
     devtool: 'source-map',
     devServer: {
         contentBase: './src'
     },
     output: {
         // 输出文件名
-        filename: 'recorder.js',
+        filename: '[name].js',
         // 输出路径
         path: path.resolve(__dirname, 'dist'),
-        libraryExport: "default",
-        library: "Recorder",
-        libraryTarget: "umd"
+        libraryExport: 'default',
+        library: '[name]',
+        libraryTarget: 'umd'
     },
     module: {
         unknownContextCritical : false,
@@ -45,6 +47,10 @@ ${ package.name } - ${ package.description }
 
 module.exports = (env, argv) => {
     if (argv.mode === 'development') {
+
+        // 移动端下增加 vconsole 调试
+        config.entry.vconsole = path.resolve(__dirname, 'src/vconsole.ts');
+
         // 开发模式下才要用到html
         config.plugins.push(
             new HtmlWebpackPlugin({
