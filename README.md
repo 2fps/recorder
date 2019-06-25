@@ -19,6 +19,11 @@ npm ci (推荐) 或 npm install
 npm run dev
 ```
 
+#### 调试移动端
+```
+npm run https
+```
+
 ### 编译
 ```
 npm run build
@@ -140,13 +145,13 @@ new Recorder时支持传入参数，
 #### window pc端
 |  ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png)   |  ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png)  |  ![Edge](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/edge/edge_32x32.png)  |  ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari/safari_32x32.png)  | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) |  ![IE](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/internet-explorer_6/internet-explorer_6_32x32.png)  |
 |  ----  | ---- | ---- | ---- | ---- | ---- |
-| 39+ | 未测试 | 42+ | 未测试 | 未测试 | 不支持 |
+| 38+ | 30+ | 42+ | win版不支持<br>mac版未测试 | 未测试 | 不支持 |
 
 #### 移动端
 
-|  |
-| ---- |
-| ---- |
+| ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) |
+| ---- | ---- | ---- |
+| ---- | ---- | 11+ |
 
 ### 其他资源
 

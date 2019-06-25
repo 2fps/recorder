@@ -50,8 +50,8 @@ class Recorder {
     constructor(options: recorderConfig = {}) {
         // 临时audioContext，为了获取输入采样率的
         let context = new (window.AudioContext || window.webkitAudioContext)();
-        this.inputSampleRate = context.sampleRate;     // 获取当前输入的采样率
 
+        this.inputSampleRate = context.sampleRate;     // 获取当前输入的采样率
         // 配置config，检查值是否有问题
         this.config = {
             // 采样数位 8, 16
@@ -258,7 +258,7 @@ class Recorder {
                 var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
                 
                 if (!getUserMedia) {
-                    return Promise.reject(new Error('浏览器不支持 getUserMedia '));
+                    return Promise.reject(new Error('浏览器不支持 getUserMedia !'));
                 }
                 
                 return new Promise(function(resolve, reject) {
@@ -351,9 +351,23 @@ class Recorder {
      * @memberof Recorder
      */
     destroy(fn?): void {
-        this.context.close().then(() => {
+        this.closeAudioContext().then(() => {
             fn && fn.call(this);
         });
+    }
+
+    /**
+     * close兼容方案
+     * 如firefox 30 等低版本浏览器没有 close方法
+     */
+    private closeAudioContext() {
+        if (this.context.close) {
+            return this.context.close();
+        } else {
+            return new Promise((resolve) => {
+                resolve();
+            });
+        }
     }
 
     /**
@@ -391,7 +405,12 @@ class Recorder {
         this.ispause = false;
 
         // 录音前，关闭录音播放
-        this.source && this.source.stop();
+        if (this.source) {
+            this.source.stop();
+            // 重新开启录制，由于新建了 AudioContext ，source需要清空，
+            // 处理iphone 上 safari 浏览器 第二次播放报错的问题。
+            this.source = null;
+        }
     }
 
     /**
