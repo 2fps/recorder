@@ -50,6 +50,8 @@ module.exports = (env, argv) => {
 
         // 移动端下增加 vconsole 调试
         config.entry.vconsole = path.resolve(__dirname, 'src/vconsole.ts');
+        // 开发模式下增加 example 
+        config.entry.example = path.resolve(__dirname, 'src/example.ts');
 
         // 开发模式下才要用到html
         config.plugins.push(

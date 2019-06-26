@@ -125,9 +125,8 @@ new Recorder时支持传入参数，
 
 ### 任务列表
 - [ ] 拆分recorder到各个功能模块。
-- [ ] 增加test代码。
-- [ ] promise。
-- [ ] 支持async, await。
+- [x] 增加test代码。
+- [ ] promise，支持async, await。
 - [ ] 功能完善。
 - [ ] 兼容性测试。
 
@@ -138,20 +137,19 @@ new Recorder时支持传入参数，
 
 1. 使用127.0.0.1或localhost尝试，因为getUserMedia在高版本的chrome下需要使用https。
 
-### 浏览器兼容性
+### 兼容性
 
 > 以下为测试结果，低于以下版本并不表示不支持，可能是未测试到，增加或标注请查看：[issues6](https://github.com/2fps/recorder/issues/6)
 
 #### window pc端
 |  ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png)   |  ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png)  |  ![Edge](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/edge/edge_32x32.png)  |  ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari/safari_32x32.png)  | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) |  ![IE](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/internet-explorer_6/internet-explorer_6_32x32.png)  |
 |  ----  | ---- | ---- | ---- | ---- | ---- |
-| 38+ | 30+ | 42+ | win版不支持<br>mac版未测试 | 未测试 | 不支持 |
+| 38+ | 30+ | 42+ | 11+ | 21+ | 不支持 |
 
 #### 移动端
-
-| ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) |
-| ---- | ---- | ---- |
-| ---- | ---- | 11+ |
+| ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) | ![UC](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/uc/uc_32x32.png) |
+| ---- | ---- | ---- | ---- | ---- |
+| 未测试 | 未测试 | 11+ | 未测试 | 未测试 |
 
 ### 其他资源
 

@@ -37,6 +37,7 @@ class Recorder {
     private outputSampleRate: number;           // 输出采样率
     private oututSampleBits: number;            // 输出采样位数
     private analyser: any;
+    private littleEdian: boolean;               // 是否是小端字节序
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
@@ -64,6 +65,12 @@ class Recorder {
         // 设置采样的参数
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
         this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
+        // 判断端字节序
+        this.littleEdian = (function() {
+            var buffer = new ArrayBuffer(2);
+            new DataView(buffer).setInt16(0, 256, true);
+            return new Int16Array(buffer)[0] === 256;
+        })();
     }
 
     /** 
@@ -280,7 +287,7 @@ class Recorder {
         // 压缩或扩展
         data = Recorder.compress(data, this.inputSampleRate, this.outputSampleRate);
         // 按采样位数重新编码
-        return Recorder.encodePCM(data, this.oututSampleBits);
+        return Recorder.encodePCM(data, this.oututSampleBits, this.littleEdian);
     }
 
     /**
@@ -316,7 +323,7 @@ class Recorder {
     private getWAV() {
         let pcmTemp = this.getPCM(),
             wavTemp = Recorder.encodeWAV(pcmTemp, this.inputSampleRate, 
-                this.outputSampleRate, this.config.numChannels, this.oututSampleBits);
+                this.outputSampleRate, this.config.numChannels, this.oututSampleBits, this.littleEdian);
 
         return wavTemp;
     }
@@ -486,11 +493,12 @@ class Recorder {
      * 
      * @static
      * @param {float32array} bytes      pcm二进制数据
-     * @param {number} sampleBits       采样位数
+     * @param {number}  sampleBits      采样位数
+     * @param {boolean} littleEdian     是否是小端字节序
      * @returns {dataview}              pcm二进制数据
      * @memberof Recorder
      */
-    static encodePCM(bytes, sampleBits: number)  {
+    static encodePCM(bytes, sampleBits: number, littleEdian: boolean = true)  {
         let offset = 0,
             dataLength = bytes.length * (sampleBits / 8),
             buffer = new ArrayBuffer(dataLength),
@@ -512,7 +520,7 @@ class Recorder {
                 var s = Math.max(-1, Math.min(1, bytes[i]));
                 // 16位的划分的是2^16=65536份，范围是-32768到32767
                 // 因为我们收集的数据范围在[-1,1]，那么你想转换成16位的话，只需要对负数*32768,对正数*32767,即可得到范围在[-32768,32767]的数据。
-                data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, littleEdian);
             }
         }
     
@@ -525,14 +533,15 @@ class Recorder {
      * 
      * @static
      * @param {DataView} bytes           pcm二进制数据
-     * @param {Number} inputSampleRate   输入采样率
-     * @param {Number} outputSampleRate  输出采样率
-     * @param {Number} numChannels       声道数
-     * @param {Number} oututSampleBits   输出采样位数
+     * @param {number}  inputSampleRate  输入采样率
+     * @param {number}  outputSampleRate 输出采样率
+     * @param {number}  numChannels      声道数
+     * @param {number}  oututSampleBits  输出采样位数
+     * @param {boolean} littleEdian      是否是小端字节序
      * @returns {DataView}               wav二进制数据
      * @memberof Recorder
      */
-    static encodeWAV(bytes: dataview, inputSampleRate: number, outputSampleRate: number, numChannels: number, oututSampleBits: number) {
+    static encodeWAV(bytes: dataview, inputSampleRate: number, outputSampleRate: number, numChannels: number, oututSampleBits: number, littleEdian: boolean = true) {
         let sampleRate = Math.min(inputSampleRate, outputSampleRate),
             sampleBits = oututSampleBits,
             buffer = new ArrayBuffer(44 + bytes.byteLength),
@@ -543,29 +552,29 @@ class Recorder {
         // 资源交换文件标识符
         writeString(data, offset, 'RIFF'); offset += 4;
         // 下个地址开始到文件尾总字节数,即文件大小-8
-        data.setUint32(offset, 36 + bytes.byteLength, true); offset += 4;
+        data.setUint32(offset, 36 + bytes.byteLength, littleEdian); offset += 4;
         // WAV文件标志
         writeString(data, offset, 'WAVE'); offset += 4;
         // 波形格式标志
         writeString(data, offset, 'fmt '); offset += 4;
         // 过滤字节,一般为 0x10 = 16
-        data.setUint32(offset, 16, true); offset += 4;
+        data.setUint32(offset, 16, littleEdian); offset += 4;
         // 格式类别 (PCM形式采样数据)
-        data.setUint16(offset, 1, true); offset += 2;
+        data.setUint16(offset, 1, littleEdian); offset += 2;
         // 声道数
-        data.setUint16(offset, channelCount, true); offset += 2;
+        data.setUint16(offset, channelCount, littleEdian); offset += 2;
         // 采样率,每秒样本数,表示每个通道的播放速度
-        data.setUint32(offset, sampleRate, true); offset += 4;
+        data.setUint32(offset, sampleRate, littleEdian); offset += 4;
         // 波形数据传输率 (每秒平均字节数) 声道数 × 采样频率 × 采样位数 / 8
-        data.setUint32(offset, channelCount * sampleRate * (sampleBits / 8), true); offset += 4;
+        data.setUint32(offset, channelCount * sampleRate * (sampleBits / 8), littleEdian); offset += 4;
         // 快数据调整数 采样一次占用字节数 声道数 × 采样位数 / 8
-        data.setUint16(offset, channelCount * (sampleBits / 8), true); offset += 2;
+        data.setUint16(offset, channelCount * (sampleBits / 8), littleEdian); offset += 2;
         // 采样位数
-        data.setUint16(offset, sampleBits, true); offset += 2;
+        data.setUint16(offset, sampleBits, littleEdian); offset += 2;
         // 数据标识符
         writeString(data, offset, 'data'); offset += 4;
         // 采样数据总数,即数据总大小-44
-        data.setUint32(offset, bytes.byteLength, true); offset += 4;
+        data.setUint32(offset, bytes.byteLength, littleEdian); offset += 4;
         
         // 给wav头增加pcm体
         for (let i = 0; i < bytes.byteLength;) {
