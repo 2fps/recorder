@@ -4,8 +4,8 @@
   "description": "js audio recorder plugin",
   "main": "./src/recorder.js",
   "scripts": {
-    "dev": "webpack-dev-server --open --watch --inline --mode=development",
-    "start": "webpack-dev-server --open --watch --inline --mode=development",
+    "dev": "webpack-dev-server --open --watch --inline --mode=development --host",
+    "start": "webpack-dev-server --open --watch --inline --mode=development --host",
     "https": "webpack-dev-server --https --open --watch --inline --mode=development --host",
     "build": "webpack --mode=production",
     "test": "jest"

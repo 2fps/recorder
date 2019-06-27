@@ -95,6 +95,10 @@ class Recorder {
         this.initUserMedia();
         // 音频采集
         this.recorder.onaudioprocess = e => {
+            if (!this.isrecording) {
+                // 不在录音时不需要处理，FF 在停止录音后，仍会触发 audioprocess 事件
+                return;
+            } 
             // getChannelData返回Float32Array类型的pcm数据
             if (1 === this.config.numChannels) {
                 let data = e.inputBuffer.getChannelData(0);
@@ -149,7 +153,7 @@ class Recorder {
 
         navigator.mediaDevices.getUserMedia({
             audio: true,
-            video: false
+            // video: true
         }).then(stream => {
             // audioInput表示音频源节点
             // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
@@ -262,7 +266,7 @@ class Recorder {
         
         if (navigator.mediaDevices.getUserMedia === undefined) {
             navigator.mediaDevices.getUserMedia = function(constraints) {
-                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
                 
                 if (!getUserMedia) {
                     return Promise.reject(new Error('浏览器不支持 getUserMedia !'));

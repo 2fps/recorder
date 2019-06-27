@@ -130,9 +130,6 @@ new Recorder时支持传入参数，
 - [ ] 功能完善。
 - [ ] 兼容性测试。
 
-### 已知bug
-1. FF 63.0.3 在录音停止后，录音时长无法暂停。
-
 ### 注意
 
 1. 使用127.0.0.1或localhost尝试，因为getUserMedia在高版本的chrome下需要使用https。
@@ -149,7 +146,7 @@ new Recorder时支持传入参数，
 #### 移动端
 | ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) | ![UC](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/uc/uc_32x32.png) |
 | ---- | ---- | ---- | ---- | ---- |
-| 未测试 | 未测试 | 11+ | 未测试 | 未测试 |
+| 58+ | 61+ | 11+ | 未测试 | 未测试 |
 
 ### 其他资源
 
