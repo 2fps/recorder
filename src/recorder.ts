@@ -38,6 +38,7 @@ class Recorder {
     private oututSampleBits: number;            // 输出采样位数
     private analyser: any;
     private littleEdian: boolean;               // 是否是小端字节序
+    private prevDomainData: any;                // 存放前一次图形化的数据
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
@@ -95,7 +96,7 @@ class Recorder {
         this.initUserMedia();
         // 音频采集
         this.recorder.onaudioprocess = e => {
-            if (!this.isrecording) {
+            if (!this.isrecording || this.ispause) {
                 // 不在录音时不需要处理，FF 在停止录音后，仍会触发 audioprocess 事件
                 return;
             } 
@@ -152,8 +153,7 @@ class Recorder {
         this.isrecording = true;
 
         navigator.mediaDevices.getUserMedia({
-            audio: true,
-            // video: true
+            audio: true
         }).then(stream => {
             // audioInput表示音频源节点
             // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
@@ -241,11 +241,16 @@ class Recorder {
      * @memberof Recorder
      */
     getRecordAnalyseData() {
+        if (this.ispause) {
+            // 暂停时不需要发送录音的数据，处理FF下暂停仍就获取录音数据的问题
+            // 为防止暂停后，画面空白，故返回先前的数据
+            return this.prevDomainData;
+        }
         let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
         // 将数据拷贝到dataArray中。
         this.analyser.getByteTimeDomainData(dataArray);
 
-        return dataArray;
+        return ( this.prevDomainData = dataArray);
     }
 
     /**
