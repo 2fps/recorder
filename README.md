@@ -130,7 +130,7 @@ new Recorder时支持传入参数，
 - [x] 增加test代码。
 - [ ] promise，支持async, await。
 - [ ] 功能完善。
-- [ ] 兼容性测试。
+- [x] 兼容性测试。
 
 ### 注意
 
@@ -148,7 +148,7 @@ new Recorder时支持传入参数，
 #### 移动端
 | ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) | ![UC](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/uc/uc_32x32.png) | ![QQ](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/qq_2/qq_2_32x32.png) | ![猎豹](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/cheetah/cheetah_32x32.png) | ![搜狗]() | ![华为]() | ![小米]() |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| 58+ | 61+ | 11+ | 不支持 | 不支持 | 9.2+ | 不支持 | 不支持 | 不支持 | 未测试 |
+| 42+ | 40+ | 11+ | 不支持 | 不支持 | 9.2+ | 不支持 | 不支持 | 不支持 | 不支持 |
 
 > 需要打开浏览器录音权限，在设置-权限中可以配置。
 
