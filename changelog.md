@@ -1,23 +1,63 @@
-## 修改记录
+# Changelog
+All notable changes to this project will be documented in this file.
 
-### latest(dev分支)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
++ 完成移动端兼容性测试。
+
+## [0.2.3] - 2019-06-29
+### Added
++ 增加大小端字节序检测，增加移动端和pc端兼容性的测试。
++ 增加https模式下启动，增加vconsole，为移动端调试准备。
+
+### Fixed
++ 修复ios自带浏览器报错问题，ff低版本不支持close的问题。
++ 修复ff下停止、暂停录音后，录音时长继续增加的问题。
+
+## [0.2.2] - 2019-06-20
+### Added
++ 开始pc端和移动端兼容性测试（部分）。
++ 增加getUserMedia兼容。
 + 增加jest测试库，增加jest-html-reporters依赖，生成html版测试报告。
 + 支持播放外部音频文件。
-+ 处理录音残留[issues 2](https://github.com/2fps/recorder/issues/2)。
-+ 修改destory参数是可选的，但不穿提示错误的问题。
-+ 增加createAnalyser node，暴露接口给外部实现录音图形化。
++ 增加createAnalyser函数，增加analyse node用于录音图形化显示。
 
-### 0.2.1 [2019-04-16]
-+ 修改dist版本有问题。
+### Fixed
++ 前一次录音残留问题([issues 2](https://github.com/2fps/recorder/issues/2))。
++ 修复destory参数是可选的，但不传参提示错误的问题。
 
-### 0.2.0 [2019-04-16]
-+ 增加dev模式下服务启动和热更新，增加文件头注释。
-+ 增加onprocess回调，用于显示录音时长。
-+ 增加暂停和恢复的功能。
-+ 增加pcm音频的导出功能。
-+ 增加wav音频导出的功能。
+## [0.2.1] - 2019-04-16
+### Fixed
++ dist版本有问题，修改。
+
+## [0.2.0] - 2019-04-16
+### Added
++ 加入onprocess回调，用于显示录音时长。
++ 加入暂停和恢复的功能。
++ 加入webpack-dev-server，区分development和production模式。
++ 支持pcm音频的导出功能。
++ 支持wav音频导出的功能。
 + 支持typescript。
 
-### 0.1.0 [2019-04-14]
-+ 包含基本功能，支持录音，停止和播放。
+## [0.1.1] - 2019-04-14
+### Fixed
++ 实际版本和注释版本对应不上问题修改。
+
+## [0.1.0] - 2019-04-14
+### Added
++ 支持双声道。
+
+### Changed
++ 拆分代码，将pcm转wav独立。
+
+## [0.0.2] - 2019-04-13
+### Added
++ 同时支持npm和script引用方式。
+
+## [0.0.1] - 2019-04-12
+### Added
++ 基本录音功能，开启录音，停止录音，播放录音。
++ 支持采样位数和采样率的设置。
