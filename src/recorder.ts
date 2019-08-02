@@ -127,10 +127,10 @@ class Recorder {
     /**
      * 开始录音
      *
-     * @returns {void}
+     * @returns {Promise<{}>}
      * @memberof Recorder
      */
-    start(): void {
+    start(): Promise<{}> {
         if (this.isrecording) {
             // 正在录音，则不允许
             return;
@@ -140,7 +140,7 @@ class Recorder {
         this.initRecorder();
         this.isrecording = true;
 
-        navigator.mediaDevices.getUserMedia({
+        return navigator.mediaDevices.getUserMedia({
             audio: true
         }).then(stream => {
             // audioInput表示音频源节点
@@ -351,13 +351,10 @@ class Recorder {
 
     /**
      * 销毁录音对象
-     * @param {*} fn        回调函数
      * @memberof Recorder
      */
-    destroy(fn?): void {
-        this.closeAudioContext().then(() => {
-            fn && fn.call(this);
-        });
+    destroy(): Promise<{}> {
+        return this.closeAudioContext();
     }
 
     /**
