@@ -14,6 +14,7 @@ document.getElementById('pauseRecord').addEventListener('click', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('click', resumeRecord);
 document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
+document.getElementById('destroyRecord').addEventListener('click', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('click', downloadWAV);
 document.getElementById('uploadAudio').addEventListener('change', uploadAudio);
@@ -24,6 +25,7 @@ document.getElementById('pauseRecord').addEventListener('touch', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('touch', resumeRecord);
 document.getElementById('endRecord').addEventListener('touch', endRecord);
 document.getElementById('playRecord').addEventListener('touch', playRecord);
+document.getElementById('destroyRecord').addEventListener('touch', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('touch', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('touch', downloadWAV);
 
@@ -31,12 +33,12 @@ document.getElementById('downloadWAV').addEventListener('touch', downloadWAV);
 initCanvasBg()
 
 // 开始录音
-function startRecord() {
+async function startRecord() {
     if (!recorder) {
         recorder = new Recorder({
             // 以下是默认配置
             sampleBits: 16,
-            // sampleRate: 浏览器默认的输入采样率,
+            sampleRate:  16000, // 浏览器默认的输入采样率,
             numChannels: 1,
         });
 
@@ -45,29 +47,47 @@ function startRecord() {
             oTime.innerHTML = duration.toFixed(5);
         }
     }
-    recorder.start();
+    recorder.start().then(function() {
+        console.log('开始录音');
+    });
     // 开始绘制canvas
     drawRecord();
 }
 // 暂停录音
 function pauseRecord() {
-    recorder && recorder.pause();
+    if (recorder) {
+        recorder.pause();
+        console.log('暂停录音');
+    }
 }
 // 恢复录音
 function resumeRecord() {
     recorder && recorder.resume();
+    console.log('恢复录音');
 }
 // 结束录音
 function endRecord (e) {
     recorder && recorder.stop();
+    console.log('结束录音');
     drawRecordId && cancelAnimationFrame(drawRecordId);
     drawRecordId = null;
 }
 // 播放录音
 function playRecord() {
     recorder && recorder.play();
+    console.log('播放录音');
     drawRecordId && cancelAnimationFrame(drawRecordId);
     drawRecordId = null;
+}
+// 销毁实例
+function destroyRecord() {
+    if (recorder) {
+        recorder.destroy().then(function() {
+            console.log('销毁实例');
+            recorder = null;
+            drawRecordId && cancelAnimationFrame(drawRecordId);
+        });
+    }
 }
 // 下载pcm
 function downloadPCM() {
@@ -83,7 +103,7 @@ function drawRecord() {
     drawRecordId = requestAnimationFrame(drawRecord);
 
     // 实时获取音频大小数据
-    var dataArray = recorder.getRecordAnalyseData(),
+    let dataArray = recorder.getRecordAnalyseData(),
         bufferLength = dataArray.length;
 
     // 填充背景色
