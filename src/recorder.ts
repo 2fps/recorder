@@ -27,7 +27,8 @@ class Recorder {
     private context: any;
     private config: recorderConfig;             // 配置
     private size: number;                       // 录音文件总长度
-    private buffer: Array<Float32Array> = [];   // pcm音频数据搜集器
+    private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
+    private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
     private PCMData: any;                       // 存放解析完成的pcm数据
     private audioInput: any;
     private inputSampleRate: number;            // 输入采样率
@@ -72,6 +73,8 @@ class Recorder {
             new DataView(buffer).setInt16(0, 256, true);
             return new Int16Array(buffer)[0] === 256;
         })();
+        // 兼容 getUserMedia
+        this.initUserMedia();
     }
 
     /** 
@@ -92,43 +95,28 @@ class Recorder {
         let createScript = this.context.createScriptProcessor || this.context.createJavaScriptNode;
         this.recorder = createScript.apply(this.context, [4096, this.config.numChannels, this.config.numChannels]);
 
-        // 兼容 getUserMedia
-        this.initUserMedia();
         // 音频采集
         this.recorder.onaudioprocess = e => {
             if (!this.isrecording || this.ispause) {
                 // 不在录音时不需要处理，FF 在停止录音后，仍会触发 audioprocess 事件
                 return;
-            } 
-            // getChannelData返回Float32Array类型的pcm数据
-            if (1 === this.config.numChannels) {
-                let data = e.inputBuffer.getChannelData(0);
-                // 单通道
-                this.buffer.push(new Float32Array(data));
-                this.size += data.length;
-            } else {
-                /*
-                 * 双声道处理
-                 * e.inputBuffer.getChannelData(0)得到了左声道4096个样本数据，1是右声道的数据，
-                 * 此处需要组和成LRLRLR这种格式，才能正常播放，所以要处理下
-                 */
-                let lData = new Float32Array(e.inputBuffer.getChannelData(0)),
-                    rData = new Float32Array(e.inputBuffer.getChannelData(1)),
-                    // 新的数据为左声道和右声道数据量之和
-                    buffer = new ArrayBuffer(lData.byteLength + rData.byteLength),
-                    dData = new Float32Array(buffer),
-                    offset = 0;
-
-                for (let i = 0; i < lData.byteLength; ++i) {
-                    dData[ offset ] = lData[i];
-                    offset++;
-                    dData[ offset ] = rData[i];
-                    offset++;
-                }
-
-                this.buffer.push(dData);
-                this.size += offset;
             }
+            // 左声道数据
+            // getChannelData返回Float32Array类型的pcm数据
+            let lData = e.inputBuffer.getChannelData(0),
+                rData = null;
+            this.lBuffer.push(new Float32Array(lData));
+
+            this.size += lData.length;
+
+            // 判断是否有右声道数据
+            if (2 === this.config.numChannels) {
+                rData = e.inputBuffer.getChannelData(1);
+                this.rBuffer.push(new Float32Array(rData));
+
+                this.size += rData.length;
+            }
+            
             // 统计录音时长
             this.duration += 4096 / this.inputSampleRate;
             // 录音时长回调
@@ -413,7 +401,8 @@ class Recorder {
      * @memberof Recorder
      */
     private clear(): void {
-        this.buffer.length = 0;
+        this.lBuffer.length = 0;
+        this.rBuffer.length = 0;
         this.size = 0;
         this.PCMData = null;
         this.audioInput = null;
@@ -440,17 +429,37 @@ class Recorder {
         if (this.PCMData) {
             return this.PCMData;
         }
+        let lData = null,
+            rData = new Float32Array(0);    // 右声道默认为0
+
+        // 创建存放数据的容器
+        if (1 === this.config.numChannels) {
+            lData = new Float32Array(this.size);
+        } else {
+            lData = new Float32Array(this.size / 2);
+            rData = new Float32Array(this.size / 2);
+        }
         // 合并
-        let data = new Float32Array(this.size),
-            offset = 0; // 偏移量计算
+        let offset = 0; // 偏移量计算
 
         // 将二维数据，转成一维数据
-        for (let i = 0; i < this.buffer.length; i++) {
-            data.set(this.buffer[i], offset);
-            offset += this.buffer[i].length;
+        // 左声道
+        for (let i = 0; i < this.lBuffer.length; i++) {
+            lData.set(this.lBuffer[i], offset);
+            offset += this.lBuffer[i].length;
         }
 
-        return this.PCMData = data;
+        offset = 0;
+        // 右声道
+        for (let i = 0; i < this.rBuffer.length; i++) {
+            rData.set(this.rBuffer[i], offset);
+            offset += this.rBuffer[i].length;
+        }
+
+        return this.PCMData = {
+            left: lData,
+            right: rData
+        };
     }
 
     /** 
@@ -483,15 +492,29 @@ class Recorder {
     static compress(data, inputSampleRate: number, outputSampleRate: number) {
         // 压缩，根据采样率进行压缩
         let compression = Math.max(Math.floor(inputSampleRate / outputSampleRate), 1),
-            length = data.length / compression,
+            lData = data.left,
+            rData = data.right,
+            length = ( lData.length + rData.length ) / compression,
             result = new Float32Array(length),
-            index = 0, j = 0;
+            index = 0,
+            j = 0;
 
         // 循环间隔 compression 位取一位数据
         while (index < length) {
-            result[index] = data[j];
-            j += compression;
+            result[index] = lData[j];
             index++;
+
+            if (rData.length) {
+                /*
+                 * 双声道处理
+                 * e.inputBuffer.getChannelData(0)得到了左声道4096个样本数据，1是右声道的数据，
+                 * 此处需要组和成LRLRLR这种格式，才能正常播放，所以要处理下
+                 */
+                result[index] = rData[j];
+                index++;
+            }
+            
+            j += compression;
         }
         // 返回压缩后的一维数据
         return result;
