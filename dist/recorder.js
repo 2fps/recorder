@@ -2,7 +2,7 @@
  * 
  * js-audio-recorder - js audio recorder plugin
  * 
- * @version v0.3.0
+ * @version v0.3.1
  * @homepage https://github.com/2fps/recorder
  * @author 2fps <echoweb@126.com> (http://www.zhuyuntao.cn)
  * @license MIT

@@ -13,7 +13,7 @@ js audio recorder plugin.
 
 ## 使用
 ### 在线演示地址
-[recorder](https://www.zhuyuntao.com/2019/06/18/recorder/)
+[recorder](https://2fps.github.io/demo/js%E5%BD%95%E9%9F%B3/js%E5%BD%95%E9%9F%B3.html)
 
 ### demo使用
 ```
@@ -63,7 +63,7 @@ let recorder = new Recorder({
     numChannels: 1,         // 声道，支持 1 或 2， 默认是1
 });
 ```
-+ 返回: <Recorder>
++ 返回: \<Recorder>
 
 ### 开始录音
 ``` js
@@ -120,14 +120,14 @@ recorder.destroy().then(function() {
 // 获取 PCM 数据(Blob)
 recorder.getPCMBlob();
 ```
-+ 返回: Blob
++ 返回: \<Blob>
 
 #### 获取 WAV 数据
 ``` js
 // 获取 WAV 数据(Blob)
 recorder.getWAVBlob();
 ```
-+ 返回: Blob
++ 返回: \<Blob>
 
 ### 下载录音文件
 #### 下载 PCM 格式
@@ -135,16 +135,16 @@ recorder.getWAVBlob();
 // 下载pcm文件
 recorder.downloadPCM(fileName ?);
 ```
-+ fileName <String> 重命名文件
-+ 返回: <Blob>
++ fileName \<String> 重命名文件
++ 返回: \<Blob>
 
 #### 下载 WAV 格式
 ``` js
 // 下载wav文件
 recorder.downloadWAV(fileName ?);
 ```
-+ fileName <String> 重命名文件
-+ 返回: <Blob>
++ fileName \<String> 重命名文件
++ 返回: \<Blob>
 
 ### 获取录音时长
 ``` js

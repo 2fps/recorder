@@ -1,6 +1,6 @@
 {
   "name": "js-audio-recorder",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "js audio recorder plugin",
   "main": "./src/recorder.js",
   "scripts": {

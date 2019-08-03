@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0]
 ### Fixed
 + 由于 start 和 destroy 方法内部含有异步处理，故改为返回 promise 。
 + 双通道按采样率压缩时，若不是基数倍有问题([issues 7](https://github.com/2fps/recorder/issues/7)提及的)。
