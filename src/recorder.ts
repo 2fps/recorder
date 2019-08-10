@@ -43,7 +43,7 @@ class Recorder {
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
-    public onprocess: (duration: number) => void; 
+    public onprocess: (payload: { duration: number, decibel: number }) => void;
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
@@ -116,11 +116,11 @@ class Recorder {
 
                 this.size += rData.length;
             }
-            
+            let decibel = Math.max.apply(Math, lData) * 100;
             // 统计录音时长
             this.duration += 4096 / this.inputSampleRate;
             // 录音时长回调
-            this.onprocess && this.onprocess(this.duration);
+            this.onprocess && this.onprocess({ duration: this.duration, decibel });
         }
     }
 
