@@ -223,6 +223,15 @@ class Recorder {
     }
 
     /**
+     * 停止播放
+     *
+     * @memberof Recorder
+     */
+    stopPlay(): void {
+        this.source && this.source.stop();
+    }
+
+    /**
      * 获取当前录音的波形数据，
      * 调取频率由外部控制。
      * 
