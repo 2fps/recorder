@@ -105,6 +105,13 @@ recorder.play();
 
 支持不结束直接调用录音播放。
 
+### 停止播放
+``` js
+// 停止播放
+recorder.stopPlay();
+```
++ 返回: void
+
 ### 销毁实例
 ``` js
 // 销毁录音实例，置为null释放资源，fn为回调函数，
@@ -146,14 +153,28 @@ recorder.downloadWAV(fileName ?);
 + fileName \<String> 重命名文件
 + 返回: \<Blob>
 
-### 获取录音时长
+### 录音实时回调 获取录音时长
+目前支持获取以下数据：
+
++ 录音时长（duration）。
++ 录音音量百分比（vol）。
+
 ``` js
 // 回调持续输出时长(当收集的栈满时触发)
+recorder.onprocess = function(params) {
+    console.log('录音时长', params.duration);
+    console.log('录音音量百分比', params.vol);
+}
+// 手动获取录音总时长
+console.log(recorder.duration);
+```
+
+注：
+0.3.1版本之前获取音量的方式如下：
+``` js
 recorder.onprocess = function(duration) {
     console.log(duration);
 }
-// 手动获取录音时长
-console.log(recorder.duration);
 ```
 
 ### 录音波形显示
