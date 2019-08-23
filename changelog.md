@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
++ 使 onprocess 支持音量百分比的输出， 
++ 增加 stopPlay 接口，支持录音播放的停止。
+
+### Changed
++ 合并 onprocess 回调中参数，支持多个值的输出。
+
+## [0.3.1]
+### Added
++ 0.3.0中遗漏的问题。
 
 ## [0.3.0]
 ### Fixed

@@ -3,6 +3,7 @@ import Recorder from './recorder';
 declare let document: any;
  
 var oTime = document.getElementById('time'),
+    oVolumn = document.getElementById('volumn'),
     recorder = null,
     oCanvas = document.getElementById("canvas"),        // 显示波形的canvas
     ctx = oCanvas.getContext("2d"),
@@ -14,6 +15,7 @@ document.getElementById('pauseRecord').addEventListener('click', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('click', resumeRecord);
 document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
+document.getElementById('stopPlay').addEventListener('click', stopPlay);
 document.getElementById('destroyRecord').addEventListener('click', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('click', downloadWAV);
@@ -25,6 +27,7 @@ document.getElementById('pauseRecord').addEventListener('touch', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('touch', resumeRecord);
 document.getElementById('endRecord').addEventListener('touch', endRecord);
 document.getElementById('playRecord').addEventListener('touch', playRecord);
+document.getElementById('stopPlay').addEventListener('touch', stopPlay);
 document.getElementById('destroyRecord').addEventListener('touch', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('touch', downloadPCM);
 document.getElementById('downloadWAV').addEventListener('touch', downloadWAV);
@@ -42,9 +45,10 @@ async function startRecord() {
             numChannels: 1,
         });
 
-        recorder.onprocess = function(duration) {
+        recorder.onprocess = function(params) {
             // 部分低版本浏览器不支持innerText，改用innerHTML
-            oTime.innerHTML = duration.toFixed(5);
+            oTime.innerHTML = params.duration.toFixed(5);
+            oVolumn.innerHTML = params.vol.toFixed(2);
         }
     }
     recorder.start().then(function() {
@@ -78,6 +82,11 @@ function playRecord() {
     console.log('播放录音');
     drawRecordId && cancelAnimationFrame(drawRecordId);
     drawRecordId = null;
+}
+// 停止播放
+function stopPlay() {
+    recorder && recorder.stopPlay();
+    console.log('停止播放');
 }
 // 销毁实例
 function destroyRecord() {
