@@ -1,7 +1,7 @@
-import Recorder from './recorder';
+import Recorder from '../src/recorder';
 
 declare let document: any;
- 
+
 var oTime = document.getElementById('time'),
     oVolumn = document.getElementById('volumn'),
     recorder = null,

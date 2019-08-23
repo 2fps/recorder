@@ -49,14 +49,14 @@ module.exports = (env, argv) => {
     if (argv.mode === 'development') {
 
         // 移动端下增加 vconsole 调试
-        config.entry.vconsole = path.resolve(__dirname, 'src/vconsole.ts');
+        config.entry.vconsole = path.resolve(__dirname, 'example/vconsole.ts');
         // 开发模式下增加 example 
-        config.entry.example = path.resolve(__dirname, 'src/example.ts');
+        config.entry.example = path.resolve(__dirname, 'example/example.ts');
 
         // 开发模式下才要用到html
         config.plugins.push(
             new HtmlWebpackPlugin({
-                template: path.resolve(__dirname, 'src/example.html'),
+                template: path.resolve(__dirname, 'example/example.html'),
                 filename: 'index.html'
             }
         ));

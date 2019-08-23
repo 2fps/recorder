@@ -44,11 +44,10 @@
     "ts-jest": "^24.0.2",
     "ts-loader": "^5.3.3",
     "typescript": "^3.4.3",
+    "vconsole": "^3.3.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.3.1"
   },
-  "dependencies": {
-    "vconsole": "^3.3.0"
-  }
+  "dependencies": {}
 }

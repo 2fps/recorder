@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 + 增加 stopPlay 接口，支持录音播放的停止。
 
 ### Changed
++ 文件调整，src 下只存放源码文件，独立出 example 文件夹存放 demo 。
++ 剔除无用或未用到的文件。
 + 合并 onprocess 回调中参数，支持多个值的输出。
 
 ## [0.3.1]
