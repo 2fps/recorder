@@ -5,7 +5,8 @@
   "main": "./src/recorder.js",
   "scripts": {
     "dev": "webpack-dev-server --open --watch --inline --mode=development --host",
-    "start": "webpack-dev-server --open --watch --inline --mode=development --host",
+    "start": "npm run dev",
+    "demo": "webpack --mode=development",
     "https": "webpack-dev-server --https --open --watch --inline --mode=development --host",
     "build": "webpack --mode=production",
     "test": "jest"
