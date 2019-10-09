@@ -46,7 +46,9 @@ class Recorder {
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
-    public onprocess: (payload: { duration: number, vol: number }) => void;
+    public onprocess: (duration: number) => void;
+    // onprocess 替代函数，保持原来的 onprocess 向下兼容
+    public onprogress: (payload: { duration: number, vol: number }) => void;
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
@@ -126,7 +128,9 @@ class Recorder {
             // 统计录音时长
             this.duration += 4096 / this.inputSampleRate;
             // 录音时长回调
-            this.onprocess && this.onprocess({
+            this.onprocess && this.onprocess(this.duration);
+            // 录音时长及响度回调
+            this.onprogress && this.onprogress({
                 duration: this.duration,
                 vol
             });

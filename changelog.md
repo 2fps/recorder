@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0]
 ### Added
 + 增加 pausePlay 方法暂停录音的播放，增加 resumePlay 方法恢复录音的播放。
 + 使 onprocess 支持音量百分比的输出， 
 + 增加 stopPlay 接口，支持录音播放的停止。
 
 ### Changed
++ 增加 onprogress 回调替换 onprocess，onprocess做向下兼容
 + 文件调整，src 下只存放源码文件，独立出 example 文件夹存放 demo 。
 + 剔除无用或未用到的文件。
 + 合并 onprocess 回调中参数，支持多个值的输出。

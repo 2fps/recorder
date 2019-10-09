@@ -175,20 +175,18 @@ recorder.downloadWAV(fileName ?);
 
 ``` js
 // 回调持续输出时长(当收集的栈满时触发)
-recorder.onprocess = function(params) {
+
+// 不推荐使用
+recorder.onprocess = function(duration) {
+    console.log(duration);
+}
+// 推荐使用
+recorder.onprogress = function(params) {
     console.log('录音时长', params.duration);
     console.log('录音音量百分比', params.vol);
 }
 // 手动获取录音总时长
 console.log(recorder.duration);
-```
-
-注：
-0.3.1版本之前获取音量的方式如下：
-``` js
-recorder.onprocess = function(duration) {
-    console.log(duration);
-}
 ```
 
 ### 录音波形显示

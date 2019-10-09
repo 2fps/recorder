@@ -45,11 +45,16 @@ async function startRecord() {
         recorder = new Recorder({
             // 以下是默认配置
             sampleBits: 16,
-            sampleRate: 48000, // 浏览器默认的输入采样率,
+            sampleRate: 16000, // 浏览器默认的输入采样率,
             numChannels: 1,
         });
 
-        recorder.onprocess = function(params) {
+        recorder.onprocess = function(duration) {
+            // oTime.innerHTML = duration.toFixed(5);
+            // 推荐使用 onprogress 
+        }
+
+        recorder.onprogress = function(params) {
             // 部分低版本浏览器不支持innerText，改用innerHTML
             oTime.innerHTML = params.duration.toFixed(5);
             oVolumn.innerHTML = params.vol.toFixed(2);
