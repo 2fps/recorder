@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
++ 增加 pausePlay 方法暂停录音的播放，增加 resumePlay 方法恢复录音的播放。
 + 使 onprocess 支持音量百分比的输出， 
 + 增加 stopPlay 接口，支持录音播放的停止。
 

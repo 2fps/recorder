@@ -23,6 +23,7 @@ interface dataview {
 
 class Recorder {
     private isrecording: boolean;               // 是否正在录音
+    private isplaying: boolean = false;         // 是否正在播放
     private ispause: boolean;                   // 是否是暂停
     private context: any;
     private config: recorderConfig;             // 配置
@@ -40,6 +41,8 @@ class Recorder {
     private analyser: any;
     private littleEdian: boolean;               // 是否是小端字节序
     private prevDomainData: any;                // 存放前一次图形化的数据
+    private playStamp: number = 0;              // 播放录音时 AudioContext 记录的时间戳
+    private playTime: number = 0;               // 记录录音播放时长
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
@@ -82,7 +85,7 @@ class Recorder {
      */
     initRecorder(): void {
         if (this.context) {
-            // 关闭先前的录音实例，因为前次的实例会缓存少量数据
+            // 关闭先前的录音实例，因为前次的实例会缓存少量前次的录音数据
             this.destroy();
         }
         this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -214,18 +217,42 @@ class Recorder {
         // 关闭前一次音频播放
         this.source && this.source.stop();
 
-        this.context.decodeAudioData(this.getWAV().buffer, buffer => {
-            this.source = this.context.createBufferSource();
+        this.isplaying = true;
+        this.playTime = 0;
 
-            // 设置数据
-            this.source.buffer = buffer;
-            // connect到分析器，还是用录音的，因为播放时时不能录音的
-            this.source.connect(this.analyser);
-            this.analyser.connect(this.context.destination);
-            this.source.start();
-        }, function(e) {
-            Recorder.throwError(e);
-        });
+        this.playAudioData();
+    }
+
+    /**
+     * 暂停播放录音
+     *
+     * @memberof Recorder
+     */
+    pausePlay(): void {
+        if (this.isrecording || !this.isplaying) {
+            // 正在录音或没有播放，暂停无效
+            return;
+        }
+
+        this.source && this.source.disconnect();
+        // 多次暂停需要累加
+        this.playTime += this.context.currentTime - this.playStamp;
+        this.isplaying = false;
+    }
+
+    /**
+     * 恢复播放录音
+     *
+     * @memberof Recorder
+     */
+    resumePlay(): void {
+        if (this.isrecording || this.isplaying || 0 === this.playTime) {
+            // 正在录音或已经播放或没开始播放，恢复无效
+            return;
+        }
+
+        this.isplaying = true;
+        this.playAudioData();
     }
 
     /**
@@ -234,7 +261,38 @@ class Recorder {
      * @memberof Recorder
      */
     stopPlay(): void {
+        if (this.isrecording) {
+            // 正在录音，停止录音播放无效
+            return;
+        }
+
+        this.playTime = 0;
+        this.isplaying = false;
         this.source && this.source.stop();
+    }
+
+    /**
+     * 利用 decodeAudioData播放录音数据，每次播放都需创建，因为buffersource只能被使用一次
+     *
+     * @private
+     * @memberof Recorder
+     */
+    private playAudioData(): void {
+        this.context.decodeAudioData(this.getWAV().buffer, buffer => {
+            this.source = this.context.createBufferSource();
+
+            // 设置数据
+            this.source.buffer = buffer;
+            // connect到分析器，还是用录音的，因为播放时不能录音的
+            this.source.connect(this.analyser);
+            this.analyser.connect(this.context.destination);
+            this.source.start(0, this.playTime);
+
+            // 记录当前的时间戳，以备暂停时使用
+            this.playStamp = this.context.currentTime;
+        }, function(e) {
+            Recorder.throwError(e);
+        });
     }
 
     /**
@@ -420,6 +478,8 @@ class Recorder {
         this.audioInput = null;
         this.duration = 0;
         this.ispause = false;
+        this.isplaying = false;
+        this.playTime = 0;
 
         // 录音前，关闭录音播放
         if (this.source) {

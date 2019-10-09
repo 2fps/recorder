@@ -15,6 +15,8 @@ document.getElementById('pauseRecord').addEventListener('click', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('click', resumeRecord);
 document.getElementById('endRecord').addEventListener('click', endRecord);
 document.getElementById('playRecord').addEventListener('click', playRecord);
+document.getElementById('pausePlay').addEventListener('click', pausePlay);
+document.getElementById('resumePlay').addEventListener('click', resumePlay);
 document.getElementById('stopPlay').addEventListener('click', stopPlay);
 document.getElementById('destroyRecord').addEventListener('click', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('click', downloadPCM);
@@ -27,6 +29,8 @@ document.getElementById('pauseRecord').addEventListener('touch', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('touch', resumeRecord);
 document.getElementById('endRecord').addEventListener('touch', endRecord);
 document.getElementById('playRecord').addEventListener('touch', playRecord);
+document.getElementById('pausePlay').addEventListener('touch', pausePlay);
+document.getElementById('resumePlay').addEventListener('touch', resumePlay);
 document.getElementById('stopPlay').addEventListener('touch', stopPlay);
 document.getElementById('destroyRecord').addEventListener('touch', destroyRecord);
 document.getElementById('downloadPCM').addEventListener('touch', downloadPCM);
@@ -41,7 +45,7 @@ async function startRecord() {
         recorder = new Recorder({
             // 以下是默认配置
             sampleBits: 16,
-            sampleRate:  16000, // 浏览器默认的输入采样率,
+            sampleRate: 48000, // 浏览器默认的输入采样率,
             numChannels: 1,
         });
 
@@ -82,6 +86,16 @@ function playRecord() {
     console.log('播放录音');
     drawRecordId && cancelAnimationFrame(drawRecordId);
     drawRecordId = null;
+}
+// 暂停播放
+function pausePlay() {
+    recorder && recorder.pausePlay();
+    console.log('暂停播放');
+}
+// 恢复播放
+function resumePlay() {
+    recorder && recorder.resumePlay();
+    console.log('恢复播放');
 }
 // 停止播放
 function stopPlay() {

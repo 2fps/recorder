@@ -105,6 +105,20 @@ recorder.play();
 
 支持不结束直接调用录音播放。
 
+### 暂停录音播放
+```js
+// 暂停录音播放
+recorder.pausePlay();
+```
++ 返回: void
+
+### 恢复录音播发
+```js
+// 恢复录音播发
+recorder.resumePlay();
+```
++ 返回: void
+
 ### 停止播放
 ``` js
 // 停止播放
