@@ -1,5 +1,3 @@
-// import * as lamejs from 'lamejs';
-
 declare let window: any;
 declare let Math: any;
 declare let document: any;
@@ -30,7 +28,7 @@ class Recorder {
     private size: number;                       // 录音文件总长度
     private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
     private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
-    private PCMData: any;                       // 存放解析完成的pcm数据
+    private PCM: any;                           // 最终的PCM数据缓存，避免多次encode
     private audioInput: any;
     private inputSampleRate: number;            // 输入采样率
     private source: any;                        // 音频输入
@@ -74,7 +72,7 @@ class Recorder {
         this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
         // 判断端字节序
         this.littleEdian = (function() {
-            var buffer = new ArrayBuffer(2);
+            let buffer = new ArrayBuffer(2);
             new DataView(buffer).setInt16(0, 256, true);
             return new Int16Array(buffer)[0] === 256;
         })();
@@ -336,7 +334,7 @@ class Recorder {
         
         if (navigator.mediaDevices.getUserMedia === undefined) {
             navigator.mediaDevices.getUserMedia = function(constraints) {
-                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
                 
                 if (!getUserMedia) {
                     return Promise.reject(new Error('浏览器不支持 getUserMedia !'));
@@ -356,12 +354,16 @@ class Recorder {
      * @memberof Recorder
      */
     private getPCM() {
+        if (this.PCM) {
+            // 给缓存
+            return this.PCM;
+        }
         // 二维转一维
-        let data = this.flat();
+        let data: any = this.flat();
         // 压缩或扩展
         data = Recorder.compress(data, this.inputSampleRate, this.outputSampleRate);
         // 按采样位数重新编码
-        return Recorder.encodePCM(data, this.oututSampleBits, this.littleEdian);
+        return this.PCM = Recorder.encodePCM(data, this.oututSampleBits, this.littleEdian);
     }
 
     /**
@@ -478,7 +480,7 @@ class Recorder {
         this.lBuffer.length = 0;
         this.rBuffer.length = 0;
         this.size = 0;
-        this.PCMData = null;
+        this.PCM = null;
         this.audioInput = null;
         this.duration = 0;
         this.ispause = false;
@@ -502,9 +504,6 @@ class Recorder {
      * @memberof Recorder
      */
     private flat() {
-        if (this.PCMData) {
-            return this.PCMData;
-        }
         let lData = null,
             rData = new Float32Array(0);    // 右声道默认为0
 
@@ -532,7 +531,7 @@ class Recorder {
             offset += this.rBuffer[i].length;
         }
 
-        return this.PCMData = {
+        return {
             left: lData,
             right: rData
         };
@@ -614,18 +613,18 @@ class Recorder {
     
         // 写入采样数据
         if (sampleBits === 8) {
-            for (var i = 0; i < bytes.length; i++, offset++) {
+            for (let i = 0; i < bytes.length; i++, offset++) {
                 // 范围[-1, 1]
-                var s = Math.max(-1, Math.min(1, bytes[i]));
+                let s = Math.max(-1, Math.min(1, bytes[i]));
                 // 8位采样位划分成2^8=256份，它的范围是0-255; 
                 // 对于8位的话，负数*128，正数*127，然后整体向上平移128(+128)，即可得到[0,255]范围的数据。
-                var val = s < 0 ? s * 128 : s * 127;
+                let val = s < 0 ? s * 128 : s * 127;
                 val = +val + 128;
                 data.setInt8(offset, val);
             }
         } else {
-            for (var i = 0; i < bytes.length; i++, offset += 2) {
-                var s = Math.max(-1, Math.min(1, bytes[i]));
+            for (let i = 0; i < bytes.length; i++, offset += 2) {
+                let s = Math.max(-1, Math.min(1, bytes[i]));
                 // 16位的划分的是2^16=65536份，范围是-32768到32767
                 // 因为我们收集的数据范围在[-1,1]，那么你想转换成16位的话，只需要对负数*32768,对正数*32767,即可得到范围在[-32768,32767]的数据。
                 data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, littleEdian);
@@ -712,7 +711,7 @@ class Recorder {
  * @param {String}      str     字符串
  */
 function writeString(data, offset, str): void {
-    for (var i = 0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
         data.setUint8(offset + i, str.charCodeAt(i));
     }
 }
