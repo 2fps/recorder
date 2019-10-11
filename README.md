@@ -13,7 +13,7 @@ js audio recorder plugin.
 
 ## 使用
 ### 在线演示地址
-[recorder](https://2fps.github.io/demo/js%E5%BD%95%E9%9F%B3/js%E5%BD%95%E9%9F%B3.html)
+[recorder](https://recorder.zhuyuntao.cn/)
 
 ### demo使用
 ```

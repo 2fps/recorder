@@ -6,9 +6,10 @@ declare let Promise: any;
 
 // 构造函数参数格式
 interface recorderConfig {
-    sampleBits?: number,         // 采样位数
-    sampleRate?: number,         // 采样率
-    numChannels?: number,        // 声道数
+    sampleBits?: number,        // 采样位数
+    sampleRate?: number,        // 采样率
+    numChannels?: number,       // 声道数
+    worker?: boolean,           // 是否边录边播
 }
 
 interface dataview {
@@ -29,6 +30,7 @@ class Recorder {
     private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
     private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
     private PCM: any;                           // 最终的PCM数据缓存，避免多次encode
+    private tempPCM: Array<DataView> = [];      // 边录边转时临时存放pcm的
     private audioInput: any;
     private inputSampleRate: number;            // 输入采样率
     private source: any;                        // 音频输入
@@ -46,7 +48,11 @@ class Recorder {
     // 正在录音时间，参数是已经录了多少时间了
     public onprocess: (duration: number) => void;
     // onprocess 替代函数，保持原来的 onprocess 向下兼容
-    public onprogress: (payload: { duration: number, vol: number }) => void;
+    public onprogress: (payload: {
+        duration: number,
+        vol: number,
+        data: Array<DataView>,      // 当前存储的所有录音数据
+    }) => void;
     /**
      * @param {Object} options 包含以下三个参数：
      * sampleBits，采样位数，一般8,16，默认16
@@ -66,6 +72,8 @@ class Recorder {
             sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
             // 声道数，1或2
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
+            // 是否需要边录边转，默认关闭，后期使用web worker
+            worker: !!options.worker || false,
         };
         // 设置采样的参数
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
@@ -121,6 +129,14 @@ class Recorder {
 
                 this.size += rData.length;
             }
+
+            // 边录边转处理
+            if (this.config.worker) {
+                let pcm = this.transformIntoPCM(lData, rData);
+
+                this.tempPCM.push(pcm);
+            }
+
             // 计算音量百分比
             vol = Math.max.apply(Math, lData) * 100;
             // 统计录音时长
@@ -130,7 +146,8 @@ class Recorder {
             // 录音时长及响度回调
             this.onprogress && this.onprogress({
                 duration: this.duration,
-                vol
+                vol,
+                data: this.tempPCM,     // 当前所有的pcm数据，调用者控制增量
             });
         }
     }
@@ -354,6 +371,25 @@ class Recorder {
      * @memberof Recorder
      */
     private getPCM() {
+        if (this.tempPCM.length) {
+            // 优先使用边录边存下的
+            // 将存下的 DataView 数据合并了
+            let buffer = new ArrayBuffer( this.tempPCM.length * this.tempPCM[0].byteLength ),
+                pcm = new DataView(buffer),
+                offset = 0;
+
+            // 遍历存储数据
+            this.tempPCM.forEach((block) => {
+                for (let i = 0, len = block.byteLength; i < len; ++i) {
+                    pcm.setInt8(offset, block.getInt8(i));
+
+                    offset++;
+                }
+            });
+            // 最终的PCM数据已经有了，temp不需要了
+            this.PCM = pcm;
+            this.tempPCM = [];
+        }
         if (this.PCM) {
             // 给缓存
             return this.PCM;
@@ -426,6 +462,25 @@ class Recorder {
         let wavBlob = this.getWAVBlob();
         
         this.download(wavBlob, name, 'wav');
+    }
+
+    /**
+     * 将获取到到左右声道的Float32Array数据编码转化
+     *
+     * @param {Float32Array} lData  左声道数据
+     * @param {Float32Array} rData  有声道数据
+     * @returns DataView
+     */
+    private transformIntoPCM(lData, rData) {
+        let lBuffer = new Float32Array(lData),
+            rBuffer = new Float32Array(rData);
+
+        let data = Recorder.compress({
+            left: lBuffer,
+            right: rBuffer,
+        }, this.inputSampleRate, this.outputSampleRate);
+
+        return Recorder.encodePCM(data, this.oututSampleBits, this.littleEdian);
     }
 
     /**

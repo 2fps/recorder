@@ -45,8 +45,9 @@ async function startRecord() {
         recorder = new Recorder({
             // 以下是默认配置
             sampleBits: 16,
-            sampleRate: 16000, // 浏览器默认的输入采样率,
+            sampleRate: 16000,  // 浏览器默认的输入采样率,
             numChannels: 1,
+            worker: true,       // 是否开启边录音边转化（后期改用web worker）
         });
 
         recorder.onprocess = function(duration) {
@@ -58,6 +59,9 @@ async function startRecord() {
             // 部分低版本浏览器不支持innerText，改用innerHTML
             oTime.innerHTML = params.duration.toFixed(5);
             oVolumn.innerHTML = params.vol.toFixed(2);
+            // 此处控制数据的收集频率
+            console.log('音频数据增量：', params.data[ params.data.length - 1 ]);
+            console.log('音频总数据：', params.data);
         }
     }
     recorder.start().then(function() {
