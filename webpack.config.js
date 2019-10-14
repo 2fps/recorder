@@ -19,6 +19,7 @@ let config = {
         path: path.resolve(__dirname, 'dist'),
         libraryExport: 'default',
         library: '[name]',
+        globalObject: 'this',
         libraryTarget: 'umd'
     },
     module: {

@@ -2,7 +2,7 @@
   "name": "js-audio-recorder",
   "version": "0.4.2",
   "description": "js audio recorder plugin",
-  "main": "./src/recorder.js",
+  "main": "./index.js",
   "scripts": {
     "dev": "webpack-dev-server --open --watch --inline --mode=development --host",
     "start": "npm run dev",
@@ -20,7 +20,8 @@
     "webaudio",
     "pcm",
     "wav",
-    "plugin"
+    "plugin",
+    "录音"
   ],
   "author": "2fps",
   "license": "MIT",
