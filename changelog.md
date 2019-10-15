@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-+ 支持边录音边转化功能，onprogress回调中data返回的即是所有处理后的音频数据。
+<!-- + 支持边录音边转化功能，onprogress回调中data返回的即是所有处理后的音频数据。 -->
+
+## [0.4.3] 2019-10-15
+### changed
++ start方法报错不内部catch，给使用者catch。
++ umd打包方式设置 globalObject 为this，使支持在 Node 环境下 import 。
 
 ## [0.4.0] - [0.4.2] 2019-10-09
 ### Added

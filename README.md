@@ -67,8 +67,11 @@ let recorder = new Recorder({
 
 ### 开始录音
 ``` js
-recorder.start().then(function() {
+recorder.start().then(() => {
     // 开始录音
+}, (error) => {
+    // 出错了
+    console.log(`${error.name} : ${error.message}`);
 });
 ```
 + 返回: Promise<{}>
@@ -207,6 +210,7 @@ Recorder.playAudio(/* 放入blob数据 */);
 - [ ] promise，支持async, await。
 - [ ] 功能完善。
 - [x] 兼容性测试。
+- [ ] 支持边录音边转换。
 
 ## 注意
 
