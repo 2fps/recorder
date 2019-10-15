@@ -6,7 +6,7 @@ const package = require('./package.json');
 let config = {
     // 入口
     entry: {
-        Recorder: path.resolve(__dirname, 'src/recorder.ts'),
+        recorder: path.resolve(__dirname, 'src/recorder.ts'),
     },
     devtool: 'source-map',
     devServer: {

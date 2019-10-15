@@ -9,7 +9,7 @@ interface recorderConfig {
     sampleBits?: number,        // 采样位数
     sampleRate?: number,        // 采样率
     numChannels?: number,       // 声道数
-    worker?: boolean,           // 是否边录边播
+    compiling?: boolean,           // 是否边录边播
 }
 
 interface dataview {
@@ -73,7 +73,7 @@ class Recorder {
             // 声道数，1或2
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
             // 是否需要边录边转，默认关闭，后期使用web worker
-            worker: !!options.worker || false,
+            compiling: !!options.compiling || false,
         };
         // 设置采样的参数
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
@@ -131,7 +131,7 @@ class Recorder {
             }
 
             // 边录边转处理
-            if (this.config.worker) {
+            if (this.config.compiling) {
                 let pcm = this.transformIntoPCM(lData, rData);
 
                 this.tempPCM.push(pcm);
@@ -174,10 +174,11 @@ class Recorder {
             // audioInput表示音频源节点
             // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
             this.audioInput = this.context.createMediaStreamSource(stream);
-        }, error => {
+        }/* 报错丢给外部使用者catch，后期可在此处增加建议性提示
+            , error => {
             // 抛出异常
             Recorder.throwError(error.name + " : " + error.message);
-        }).then(() => {
+        } */).then(() => {
             // audioInput 为声音源，连接到处理节点 recorder
             this.audioInput.connect(this.analyser);
             this.analyser.connect(this.recorder);

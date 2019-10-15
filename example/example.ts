@@ -39,6 +39,9 @@ document.getElementById('downloadWAV').addEventListener('touch', downloadWAV);
 // canvas背景初始化
 initCanvasBg()
 
+// 是否边录边转
+let compiling = false;
+
 // 开始录音
 async function startRecord() {
     if (!recorder) {
@@ -47,7 +50,7 @@ async function startRecord() {
             sampleBits: 16,
             sampleRate: 16000,  // 浏览器默认的输入采样率,
             numChannels: 1,
-            worker: true,       // 是否开启边录音边转化（后期改用web worker）
+            compiling,       // 是否开启边录音边转化（后期改用web worker）
         });
 
         recorder.onprocess = function(duration) {
@@ -60,12 +63,16 @@ async function startRecord() {
             oTime.innerHTML = params.duration.toFixed(5);
             oVolumn.innerHTML = params.vol.toFixed(2);
             // 此处控制数据的收集频率
-            console.log('音频数据增量：', params.data[ params.data.length - 1 ]);
-            console.log('音频总数据：', params.data);
+            if (compiling) {
+                console.log('音频数据增量：', params.data[ params.data.length - 1 ]);
+                console.log('音频总数据：', params.data);
+            }
         }
     }
-    recorder.start().then(function() {
+    recorder.start().then(() => {
         console.log('开始录音');
+    }, (error) => {
+        console.log(`异常了,${error.name}:${error.message}`);
     });
     // 开始绘制canvas
     drawRecord();
