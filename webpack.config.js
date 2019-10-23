@@ -6,7 +6,7 @@ const package = require('./package.json');
 let config = {
     // 入口
     entry: {
-        recorder: path.resolve(__dirname, 'src/recorder.ts'),
+        Recorder: path.resolve(__dirname, 'src/recorder.ts'),
     },
     devtool: 'source-map',
     devServer: {
@@ -14,7 +14,11 @@ let config = {
     },
     output: {
         // 输出文件名
-        filename: '[name].js',
+        //filename: '[name].js',
+        filename: (chunkData) => {
+            // 文件名小写
+            return `${firstLower(chunkData.chunk.name)}.js`;
+        },
         // 输出路径
         path: path.resolve(__dirname, 'dist'),
         libraryExport: 'default',
@@ -64,4 +68,8 @@ module.exports = (env, argv) => {
     }
     
     return config;
+}
+
+function firstLower(str) {
+    return str.substring(0, 1).toLowerCase() + str.substring(1)
 }
