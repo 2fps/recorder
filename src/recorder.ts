@@ -43,6 +43,7 @@ class Recorder {
     private prevDomainData: any;                // 存放前一次图形化的数据
     private playStamp: number = 0;              // 播放录音时 AudioContext 记录的时间戳
     private playTime: number = 0;               // 记录录音播放时长
+    private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
 
     public duration: number;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
@@ -289,6 +290,31 @@ class Recorder {
         this.playTime = 0;
         this.isplaying = false;
         this.source && this.source.stop();
+    }
+
+    /**
+     * 获取当前已经录音的PCM音频数据
+     *
+     * @returns[DataView]
+     * @memberof Recorder
+     */
+    getWholeData() {
+        return this.tempPCM;
+    }
+
+    /**
+     * 获取余下的新数据，不包括 getNextData 前一次获取的数据
+     *
+     * @returns [DataView]
+     * @memberof Recorder
+     */
+    getNextData() {
+        let length = this.tempPCM.length,
+            data = this.tempPCM.slice(this.offset);
+
+        this.offset = length;
+
+        return data;
     }
 
     /**

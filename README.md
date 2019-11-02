@@ -7,7 +7,8 @@ js audio recorder plugin.
 
 + 支持录音，暂停，恢复，和录音播放。
 + 支持音频数据的压缩，支持单双通道录音。
-+ 支持录音时长显示。
++ 支持录音时长、录音大小的显示。
++ 支持边录边转（播放）。
 + 支持导出录音文件，格式为pcm或wav。
 + 支持录音波形显示，可自己定制。
 
@@ -170,11 +171,12 @@ recorder.downloadWAV(fileName ?);
 + fileName \<String> 重命名文件
 + 返回: \<Blob>
 
-### 录音实时回调 获取录音时长
+### 录音实时回调 获取录音数据
 目前支持获取以下数据：
 
 + 录音时长（duration）。
 + 录音音量百分比（vol）。
++ 所有的录音数据（data）。
 
 ``` js
 // 回调持续输出时长(当收集的栈满时触发)
@@ -187,10 +189,27 @@ recorder.onprocess = function(duration) {
 recorder.onprogress = function(params) {
     console.log('录音时长', params.duration);
     console.log('录音音量百分比', params.vol);
+    console.log('当前录音的总数据', params.data);
 }
 // 手动获取录音总时长
 console.log(recorder.duration);
 ```
+
+注意：回调中不要进行太耗cpu的计算行为，以免造成性能问题。
+
+### 边录边转换
+现支持边录音边转换出对应的PCM数据。获取方式：
+
+1. onprogress 回调，见录音回调函数
+2. getWholeData() 和 getNextData() 方法。
+
+#### getWholeData()
+用于获取录音的整个数据，与 onprogress 回调中的 data 相同。若没有开启边录边转，则返回是空数组。
+
+#### getNextData()
+用于获取前一次 getNextData() 之后的数据。同样的，若没有开启边录边转，则返回是空数组。
+
+注：demo操作见 example.ts 文件。
 
 ### 录音波形显示
 ``` js
@@ -207,10 +226,10 @@ Recorder.playAudio(/* 放入blob数据 */);
 ## 任务列表
 - [ ] 拆分recorder到各个功能模块。
 - [x] 增加test代码。
-- [ ] promise，支持async, await。
+- [x] promise，支持async, await。
 - [ ] 功能完善。
 - [x] 兼容性测试。
-- [ ] 支持边录音边转换。
+- [x] 支持边录音边转换(播放)。
 
 ## 注意
 
@@ -226,9 +245,15 @@ Recorder.playAudio(/* 放入blob数据 */);
 | 38+ | 30+ | 42+ | 11+ | 21+ | 不支持 |
 
 ### 移动端
+#### 安卓
 | ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) | ![UC](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/uc/uc_32x32.png) | ![QQ](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/qq_2/qq_2_32x32.png) | ![猎豹](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/cheetah/cheetah_32x32.png) | ![搜狗]() | ![华为]() | ![小米]() |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| 42+ | 40+ | 11+ | 不支持 | 不支持 | 9.2+ | 不支持 | 不支持 | 不支持 | 不支持 |
+| 42+ | 40+ | ？ | 不支持 | 不支持 | 9.2+ | 不支持 | 不支持 | 不支持 | 不支持 |
+
+#### IOS
+| ![Chrome](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/chrome_12-48/chrome_12-48_32x32.png) | ![Firefox](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/firefox_23-56/firefox_23-56_32x32.png) | ![Safari](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/safari-ios/safari-ios_32x32.png) | ![Opera](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/opera_15-32/opera_15-32_32x32.png) | ![UC](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/uc/uc_32x32.png) | ![QQ](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/qq_2/qq_2_32x32.png) | ![猎豹](https://cdnjs.cloudflare.com/ajax/libs/browser-logos/51.0.17/archive/cheetah/cheetah_32x32.png) | ![搜狗]() | ![华为]() | ![小米]() |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| ？ | ？ | 11+ | ？ | ？ | ？ | ？ | ？ | ？ | ？ |
 
 > 需要打开浏览器录音权限，在设置-权限中可以配置。
 

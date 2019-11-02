@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.0] 2019-11-02
 ### Added
-<!-- + 支持边录音边转化功能，onprogress回调中data返回的即是所有处理后的音频数据。 -->
++ 增加 getWholeData() 和 getNextData() 方法，以便以便录音一边获取音频数据。
++ 支持边录音边转化功能，onprogress回调中data返回的即是所有处理后的音频数据。
+
+## [0.4.4] 2019-10-23
+### changed
++ 导出文件名和 Record 实例大小写问题修复。
 
 ## [0.4.3] 2019-10-15
 ### changed

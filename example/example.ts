@@ -39,18 +39,50 @@ document.getElementById('downloadWAV').addEventListener('touch', downloadWAV);
 // canvas背景初始化
 initCanvasBg()
 
-// 是否边录边转
-let compiling = false;
+let playTimer = null;
+
+// 配置获取
+function collectData() {
+    let sampleBits = document.querySelector('#sampleBits').value - 0
+    let sampleRate = document.querySelector('#sampleRate').value - 0
+    let numChannels = document.querySelector('#numChannels').value - 0
+    let compiling = document.querySelector('#compiling').value - 0
+    let playing = document.querySelector('#playing').value - 0
+
+    if (playing) {
+        document.querySelector('#compiling').selectedIndex = 1;
+        compiling = 1
+    }
+
+    return {
+        sampleBits,
+        sampleRate,
+        numChannels,
+        compiling: !!compiling,
+        playing: !!playing
+    }
+}
+
+function clearPlay() {
+    if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+    }
+}
 
 // 开始录音
 async function startRecord() {
+    clearPlay();
+
     if (!recorder) {
+        let config = collectData();
+        console.log(config);
         recorder = new Recorder({
             // 以下是默认配置
-            sampleBits: 16,
-            sampleRate: 16000,  // 浏览器默认的输入采样率,
-            numChannels: 1,
-            compiling,       // 是否开启边录音边转化（后期改用web worker）
+            sampleBits: config.sampleBits,
+            sampleRate: config.sampleRate,  // 浏览器默认的输入采样率,
+            numChannels: config.numChannels,
+            compiling: config.compiling,       // 是否开启边录音边转化（后期改用web worker）
         });
 
         recorder.onprocess = function(duration) {
@@ -63,11 +95,37 @@ async function startRecord() {
             oTime.innerHTML = params.duration.toFixed(5);
             oVolumn.innerHTML = params.vol.toFixed(2);
             // 此处控制数据的收集频率
-            if (compiling) {
-                console.log('音频数据增量：', params.data[ params.data.length - 1 ]);
+            if (config.compiling) {
                 console.log('音频总数据：', params.data);
             }
         }
+
+        // 定时获取录音的数据并播放
+        config.playing && (playTimer = setInterval(() => {
+            if (!recorder) {
+                return;
+            }
+
+            let newData = recorder.getNextData();
+            if (!newData.length) {
+                return;
+            }
+            let byteLength = newData[0].byteLength
+            let buffer = new ArrayBuffer(newData.length * byteLength)
+            let dataView = new DataView(buffer)
+
+            // 数据合并
+            for (let i = 0, iLen = newData.length; i < iLen; ++i) {
+                for (let j = 0, jLen = newData[i].byteLength; j < jLen; ++j) {
+                    dataView.setInt8(i * byteLength + j, newData[i].getInt8(j))
+                }
+            }
+
+            // 将录音数据转成WAV格式，并播放
+            let a = Recorder.encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
+            let blob = new Blob([ a ], { type: 'audio/wav' });
+            Recorder.playAudio(blob);
+        }, 1000))
     }
     recorder.start().then(() => {
         console.log('开始录音');
@@ -115,11 +173,13 @@ function resumePlay() {
 }
 // 停止播放
 function stopPlay() {
+    clearPlay();
     recorder && recorder.stopPlay();
     console.log('停止播放');
 }
 // 销毁实例
 function destroyRecord() {
+    clearPlay();
     if (recorder) {
         recorder.destroy().then(function() {
             console.log('销毁实例');
@@ -187,3 +247,24 @@ function initCanvasBg() {
 function uploadAudio(e) {
     Recorder.playAudio(this.files[0]);
 }
+
+
+// fetch('http://127.0.0.1:9999/aa', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     // body: JSON.stringfy(data)
+// }).then(res => res.json())
+// .then(json => console.log(json))
+
+// var xhr = new XMLHttpRequest()
+
+// xhr.onreadystatechange = function(e) {
+//     if (this.readyState == 4 && this.status == 200) {
+//         debugger
+//     }
+  
+// }
+// xhr.open("POST", 'http://127.0.0.1:9999/aa',true);
+// xhr.send(null);

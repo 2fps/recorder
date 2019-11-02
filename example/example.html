@@ -11,6 +11,35 @@
             操作
         </h3>
         <h4>
+            配置
+        </h4>
+        <span>输出采样率:</span>
+        <select id="sampleRate">
+            <option value="16000">16000</option>
+            <option value="48000">48000</option>
+        </select>
+        <span>输出采样位数:</span>
+        <select id="sampleBits">
+            <option value="8">8</option>
+            <option value="16">16</option>
+        </select>
+        <span>声道:</span>
+        <select id="numChannels">
+            <option value="1">单</option>
+            <option value="2">双</option>
+        </select>
+        <span>边录边转:</span>
+        <select id="compiling">
+            <option value="0">否</option>
+            <option value="1">是</option>
+        </select>
+        <span>边录边播:</span>
+        <select id="playing">
+            <option value="0">否</option>
+            <option value="1">是</option>
+        </select>
+        <p><strong>修改配置后，请先销毁录音实例。</strong></p>
+        <h4>
             录音阶段
         </h4>
         <input type="button" value="录音开启" id="startRecord" />
