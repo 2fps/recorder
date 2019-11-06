@@ -648,7 +648,6 @@ class Recorder {
      */
     static compress(data, inputSampleRate: number, outputSampleRate: number) {
         // 压缩，根据采样率进行压缩
-        debugger
         let rate = inputSampleRate / outputSampleRate,
             compression = Math.max(rate, 1),
             lData = data.left,
