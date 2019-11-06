@@ -436,6 +436,8 @@ class Recorder {
      * @memberof Recorder
      */
     getPCMBlob() {
+        // 先停止
+        this.stop();
         return new Blob([ this.getPCM() ]);
     }
 
@@ -446,8 +448,6 @@ class Recorder {
      * @memberof Recorder
      */
     downloadPCM(name: string = 'recorder'): void {
-        // 先停止
-        this.stop();
         let pcmBlob = this.getPCMBlob();
         
         this.download(pcmBlob, name, 'pcm');
@@ -474,6 +474,8 @@ class Recorder {
      * @memberof Recorder
      */
     getWAVBlob() {
+        // 先停止
+        this.stop();
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 
@@ -484,8 +486,6 @@ class Recorder {
      * @memberof Recorder
      */
     downloadWAV(name: string = 'recorder'): void {
-        // 先停止
-        this.stop();
         let wavBlob = this.getWAVBlob();
         
         this.download(wavBlob, name, 'wav');
@@ -648,17 +648,21 @@ class Recorder {
      */
     static compress(data, inputSampleRate: number, outputSampleRate: number) {
         // 压缩，根据采样率进行压缩
-        let compression = Math.max(Math.floor(inputSampleRate / outputSampleRate), 1),
+        debugger
+        let rate = inputSampleRate / outputSampleRate,
+            compression = Math.max(rate, 1),
             lData = data.left,
             rData = data.right,
-            length = ( lData.length + rData.length ) / compression,
+            length = Math.floor(( lData.length + rData.length ) / rate),
             result = new Float32Array(length),
             index = 0,
             j = 0;
 
         // 循环间隔 compression 位取一位数据
         while (index < length) {
-            result[index] = lData[j];
+            let temp = Math.floor(j)
+            
+            result[index] = lData[temp];
             index++;
 
             if (rData.length) {
@@ -667,7 +671,7 @@ class Recorder {
                  * e.inputBuffer.getChannelData(0)得到了左声道4096个样本数据，1是右声道的数据，
                  * 此处需要组和成LRLRLR这种格式，才能正常播放，所以要处理下
                  */
-                result[index] = rData[j];
+                result[index] = rData[temp];
                 index++;
             }
             
@@ -731,7 +735,7 @@ class Recorder {
      * @memberof Recorder
      */
     static encodeWAV(bytes: dataview, inputSampleRate: number, outputSampleRate: number, numChannels: number, oututSampleBits: number, littleEdian: boolean = true) {
-        let sampleRate = Math.min(inputSampleRate, outputSampleRate),
+        let sampleRate = outputSampleRate > inputSampleRate ? inputSampleRate : outputSampleRate,   // 输出采样率较大时，仍使用输入的值，
             sampleBits = oututSampleBits,
             buffer = new ArrayBuffer(44 + bytes.byteLength),
             data = new DataView(buffer),

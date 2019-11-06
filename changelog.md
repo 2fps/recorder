@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
++ 修改44100等非整倍数采样率的问题[issues 20](https://github.com/2fps/recorder/issues/20)。
 
 ## [0.5.0] 2019-11-02
 ### Added
