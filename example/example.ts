@@ -4,6 +4,7 @@ declare let document: any;
 
 var oTime = document.getElementById('time'),
     oVolumn = document.getElementById('volumn'),
+    oFileSize = document.getElementById('filesize'),
     recorder = null,
     oCanvas = document.getElementById("canvas"),        // 显示波形的canvas
     ctx = oCanvas.getContext("2d"),
@@ -93,6 +94,7 @@ async function startRecord() {
         recorder.onprogress = function(params) {
             // 部分低版本浏览器不支持innerText，改用innerHTML
             oTime.innerHTML = params.duration.toFixed(5);
+            oFileSize.innerHTML = params.fileSize;
             oVolumn.innerHTML = params.vol.toFixed(2);
             // 此处控制数据的收集频率
             if (config.compiling) {

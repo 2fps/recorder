@@ -179,6 +179,7 @@ recorder.downloadWAV(fileName ?);
 目前支持获取以下数据：
 
 + 录音时长（duration）。
++ 已录音文件大小(字节)（fileSize）。
 + 录音音量百分比（vol）。
 + 所有的录音数据（data）。
 
@@ -192,11 +193,14 @@ recorder.onprocess = function(duration) {
 // 推荐使用
 recorder.onprogress = function(params) {
     console.log('录音时长', params.duration);
+    console.log('已录音文件大小（字节）', params.fileSize);
     console.log('录音音量百分比', params.vol);
     console.log('当前录音的总数据', params.data);
 }
 // 手动获取录音总时长
 console.log(recorder.duration);
+// 手动获取已录音文件大小（字节）
+console.log(recorder.fileSize);
 ```
 
 注意：回调中不要进行太耗cpu的计算行为，以免造成性能问题。

@@ -45,12 +45,14 @@ class Recorder {
     private playTime: number = 0;               // 记录录音播放时长
     private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
 
-    public duration: number;                 // 录音时长
+    public fileSize: number = 0;                // 录音大小，byte为单位
+    public duration: number;                    // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
     public onprocess: (duration: number) => void;
     // onprocess 替代函数，保持原来的 onprocess 向下兼容
     public onprogress: (payload: {
         duration: number,
+        fileSize: number,
         vol: number,
         data: Array<DataView>,      // 当前存储的所有录音数据
     }) => void;
@@ -136,7 +138,15 @@ class Recorder {
                 let pcm = this.transformIntoPCM(lData, rData);
 
                 this.tempPCM.push(pcm);
+                // 计算录音大小
+                this.fileSize = pcm.byteLength * this.tempPCM.length;
+            } else {
+                // 计算录音大小
+                this.fileSize = Math.floor(this.size / Math.max( this.inputSampleRate / this.outputSampleRate, 1))
+                    * (this.oututSampleBits / 8)
             }
+            // 为何此处计算大小需要分开计算。原因是先录后转时，是将所有数据一起处理，边录边转是单个 4096 处理，
+            // 有小数位的偏差。
 
             // 计算音量百分比
             vol = Math.max.apply(Math, lData) * 100;
@@ -147,6 +157,7 @@ class Recorder {
             // 录音时长及响度回调
             this.onprogress && this.onprogress({
                 duration: this.duration,
+                fileSize: this.fileSize,
                 vol,
                 data: this.tempPCM,     // 当前所有的pcm数据，调用者控制增量
             });
@@ -562,6 +573,7 @@ class Recorder {
         this.lBuffer.length = 0;
         this.rBuffer.length = 0;
         this.size = 0;
+        this.fileSize = 0;
         this.PCM = null;
         this.audioInput = null;
         this.duration = 0;
