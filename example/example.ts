@@ -5,6 +5,7 @@ declare let document: any;
 var oTime = document.getElementById('time'),
     oVolumn = document.getElementById('volumn'),
     oFileSize = document.getElementById('filesize'),
+    oReg = document.getElementById('recognition'),
     recorder = null,
     oCanvas = document.getElementById("canvas"),        // 显示波形的canvas
     ctx = oCanvas.getContext("2d"),
@@ -15,6 +16,7 @@ document.getElementById('startRecord').addEventListener('click', startRecord);
 document.getElementById('pauseRecord').addEventListener('click', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('click', resumeRecord);
 document.getElementById('endRecord').addEventListener('click', endRecord);
+document.getElementById('recordRecognition').addEventListener('click', recordRecognition);
 document.getElementById('playRecord').addEventListener('click', playRecord);
 document.getElementById('pausePlay').addEventListener('click', pausePlay);
 document.getElementById('resumePlay').addEventListener('click', resumePlay);
@@ -29,6 +31,7 @@ document.getElementById('startRecord').addEventListener('touch', startRecord);
 document.getElementById('pauseRecord').addEventListener('touch', pauseRecord);
 document.getElementById('resumeRecord').addEventListener('touch', resumeRecord);
 document.getElementById('endRecord').addEventListener('touch', endRecord);
+document.getElementById('recordRecognition').addEventListener('touch', recordRecognition);
 document.getElementById('playRecord').addEventListener('touch', playRecord);
 document.getElementById('pausePlay').addEventListener('touch', pausePlay);
 document.getElementById('resumePlay').addEventListener('touch', resumePlay);
@@ -126,8 +129,9 @@ async function startRecord() {
             // 将录音数据转成WAV格式，并播放
             let a = Recorder.encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
             let blob = new Blob([ a ], { type: 'audio/wav' });
+
             Recorder.playAudio(blob);
-        }, 1000))
+        }, 3000))
     }
     recorder.start().then(() => {
         console.log('开始录音');
@@ -150,11 +154,16 @@ function resumeRecord() {
     console.log('恢复录音');
 }
 // 结束录音
-function endRecord (e) {
+function endRecord () {
     recorder && recorder.stop();
     console.log('结束录音');
     drawRecordId && cancelAnimationFrame(drawRecordId);
     drawRecordId = null;
+}
+// 录音识别
+function recordRecognition() {
+    endRecord();
+    sendVoice(recorder.getWAVBlob());
 }
 // 播放录音
 function playRecord() {
@@ -250,23 +259,17 @@ function uploadAudio(e) {
     Recorder.playAudio(this.files[0]);
 }
 
+function sendVoice(data) {
+    let formData = new FormData();
+    formData.append('a', data);
 
-// fetch('http://127.0.0.1:9999/aa', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     // body: JSON.stringfy(data)
-// }).then(res => res.json())
-// .then(json => console.log(json))
+    oReg.innerHTML = '......';
 
-// var xhr = new XMLHttpRequest()
-
-// xhr.onreadystatechange = function(e) {
-//     if (this.readyState == 4 && this.status == 200) {
-//         debugger
-//     }
-  
-// }
-// xhr.open("POST", 'http://127.0.0.1:9999/aa',true);
-// xhr.send(null);
+    fetch('http://127.0.0.1:3000/gen/voice', {
+        method: 'POST',
+        body: formData
+    }).then(res => res.json())
+    .then(json => {
+        oReg.innerHTML = json.result;
+    });
+}
