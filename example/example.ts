@@ -265,7 +265,7 @@ function sendVoice(data) {
 
     oReg.innerHTML = '......';
 
-    fetch('http://127.0.0.1:3000/gen/voice', {
+    fetch('https://recorder.zhuyuntao.cn/gen/voice', {
         method: 'POST',
         body: formData
     }).then(res => res.json())
