@@ -16,6 +16,10 @@ js audio recorder plugin.
 ### 在线演示地址
 [recorder](https://recorder.zhuyuntao.cn/)
 
+### 在线文档
+
+[文档](http://vegetable.zhuyuntao.cn/Recorder/)
+
 ### demo使用
 ```
 npm ci (推荐) 或 npm install
@@ -55,9 +59,6 @@ let recorder = new Recorder();
 ```
 
 ## API
-
-文档地址请查看：[文档](http://vegetable.zhuyuntao.cn/Recorder/).
-
 ### 初始化实例
 可以配置输出数据参数，
 ``` js

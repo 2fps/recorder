@@ -4,13 +4,27 @@
         "sourceMap": true,
         "target": "es5",
         "baseUrl": "./",
-        "allowJs": true
+        // "lib": ["es6", "dom"],
+        "jsx": "react",
+        // "allowJs": true,
+        "allowSyntheticDefaultImports": true
+        // "moduleResolution": "node",
+        // "rootDir": "src",
+        // "forceConsistentCasingInFileNames": true,
+        // "noImplicitReturns": true,
+        // "noImplicitThis": true,
+        // "noImplicitAny": true,
+        // "importHelpers": true,
+        // "strictNullChecks": true,
+        // "suppressImplicitAnyIndexErrors": true,
+        // "noUnusedLocals": true
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
         "./node_modules",
+        "build",
         "*.test.ts"
     ]
 }

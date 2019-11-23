@@ -64,3 +64,5 @@ typings/
 test-report/
 
 .DS_Store
+
+demo/
