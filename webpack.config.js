@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const package = require('./package.json');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 let config = {
     // 入口
@@ -46,7 +47,8 @@ ${ package.name } - ${ package.description }
 @homepage ${ package.homepage }
 @author ${ package.author } <echoweb@126.com> (http://www.zhuyuntao.cn)
 @license ${ package.license }
-        `)
+        `),
+        new CleanWebpackPlugin()
     ],
 };
 

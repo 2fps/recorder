@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 let config = {
     // 入口
@@ -41,7 +42,8 @@ let config = {
             template: path.resolve(__dirname, 'example/example.html'),
             filename: 'index.html',
             inject: true
-        })
+        }),
+        new CleanWebpackPlugin()
     ]
 };
 
