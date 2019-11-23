@@ -11,10 +11,11 @@ js audio recorder plugin.
 + 支持边录边转（播放）。
 + 支持导出录音文件，格式为pcm或wav。
 + 支持录音波形显示，可自己定制。
++ 录音数据支持第三方平台的语音识别。
 
 ## 使用
 ### 在线演示地址
-[recorder](https://recorder.zhuyuntao.cn/)
+[Recorder](https://recorder.zhuyuntao.cn/)
 
 ### 在线文档
 
