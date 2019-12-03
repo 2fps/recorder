@@ -69,6 +69,8 @@ class Translate extends React.Component {
         this.setState({
             translating: true,
             aliRecordering: false
+        }, () => {
+            recorder.destroy();
         });
     }
 
@@ -78,6 +80,8 @@ class Translate extends React.Component {
         this.setState({
             translating: true,
             baiduRecordering: false
+        }, () => {
+            recorder.destroy();
         });
     }
 
@@ -85,6 +89,7 @@ class Translate extends React.Component {
         let formData = new FormData();
         formData.append('a', data);
     
+        // fetch(`http://127.0.0.1:3000/gen/voice?platform=${ this.state.platform }`, {
         fetch(`https://recorder.zhuyuntao.cn/gen/voice?platform=${ this.state.platform }`, {
             method: 'POST',
             body: formData

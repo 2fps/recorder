@@ -44,6 +44,7 @@ class Recorder {
     private playStamp: number = 0;              // 播放录音时 AudioContext 记录的时间戳
     private playTime: number = 0;               // 记录录音播放时长
     private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
+    private stream: any                         // 流
 
     public fileSize: number = 0;                // 录音大小，byte为单位
     public duration: number;                    // 录音时长
@@ -186,6 +187,7 @@ class Recorder {
             // audioInput表示音频源节点
             // stream是通过navigator.getUserMedia获取的外部（如麦克风）stream音频输出，对于这就是输入
             this.audioInput = this.context.createMediaStreamSource(stream);
+            this.stream = stream;
         }/* 报错丢给外部使用者catch，后期可在此处增加建议性提示
             , error => {
             // 抛出异常
@@ -526,6 +528,12 @@ class Recorder {
      * @memberof Recorder
      */
     destroy(): Promise<{}> {
+        // 结束流
+        if (this.stream.getTracks) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
         return this.closeAudioContext();
     }
 

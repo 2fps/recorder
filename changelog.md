@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.3] 2019-12-03
+### Fixed
++ 修改[issues 23](https://github.com/2fps/recorder/issues/23)中提到的问题：在录音结束时，释放录音权限。
+
 ### changed
 + 引入 semantic-ui 改善demo界面。
 
