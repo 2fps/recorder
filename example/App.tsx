@@ -124,15 +124,15 @@ class App extends React.Component {
 
                 Recorder.playAudio(blob);
             }, 3000))
+    
+            recorder.start().then(() => {
+                console.log('开始录音');
+            }, (error) => {
+                console.log(`异常了,${error.name}:${error.message}`);
+            });
+            // 开始绘制canvas
+            this.drawRecord();
         }
-
-        recorder.start().then(() => {
-            console.log('开始录音');
-        }, (error) => {
-            console.log(`异常了,${error.name}:${error.message}`);
-        });
-        // 开始绘制canvas
-        this.drawRecord();
     }
 
     drawRecord = () => {

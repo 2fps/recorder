@@ -45,7 +45,7 @@ ${ package.name } - ${ package.description }
 
 @version v${ package.version }
 @homepage ${ package.homepage }
-@author ${ package.author } <echoweb@126.com> (http://www.zhuyuntao.cn)
+@author ${ package.author } <echoweb@126.com> (https://www.zhuyuntao.cn)
 @license ${ package.license }
         `),
         new CleanWebpackPlugin()

@@ -529,12 +529,21 @@ class Recorder {
      */
     destroy(): Promise<{}> {
         // 结束流
-        if (this.stream.getTracks) {
+        this.stopStream();
+
+        return this.closeAudioContext();
+    }
+
+    /**
+     * 终止流（这可以让浏览器上正在录音的标志消失掉）
+     * @private
+     * @memberof Recorder
+     */
+    private stopStream() {
+        if (this.stream && this.stream.getTracks) {
             this.stream.getTracks().forEach(track => track.stop());
             this.stream = null;
         }
-
-        return this.closeAudioContext();
     }
 
     /**
