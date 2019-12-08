@@ -9,7 +9,10 @@
     "demo": "webpack --mode=production --config webpack.dev.js",
     "https": "webpack-dev-server --https --open --watch --inline --mode=development --host --config webpack.dev.js",
     "build": "webpack --mode=production",
-    "test": "jest"
+    "test": "jest",
+    "gitbook:start": "gitbook serve ./site",
+    "gitbook:build": "gitbook build ./site",
+    "gitbook:install": "gitbook install ./site"
   },
   "keywords": [
     "recorder",
@@ -50,6 +53,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.2.0",
     "file-loader": "^4.3.0",
+    "gitbook-cli": "^2.3.2",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.7.1",
     "jest-html-reporters": "^1.1.6",

@@ -66,3 +66,5 @@ test-report/
 .DS_Store
 
 demo/
+
+_book/

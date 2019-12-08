@@ -1,0 +1,41 @@
+{
+    "title": "recorder",
+    "description": "recorder",
+    "gitbook": "3.2.3",
+    "links" : {
+        "sidebar" : {
+            "Home" : "https://github.com/2fps/recorder"
+        }
+    },
+    "plugins": [
+        "-lunr", 
+        "-search", 
+        "search-pro",
+        "back-to-top-button",
+        "expandable-chapters-small",
+        "copy-code-button",
+        "github",
+        "tbfed-pagefooter",
+        "baidu-tongji",
+        "page-toc-button",
+        "pageview-count",
+        "popup"
+   ],
+   "pluginsConfig": {
+        "github": {
+            "url": "https://github.com/2fps/recorder"
+        },
+        "tbfed-pagefooter": {
+            "copyright":"Copyright & copy https://www.zhuyuntao.cn 2019",
+            "modify_label": "该文件修订时间：",
+            "modify_format": "YYYY-MM-DD HH:mm:ss"
+        },
+        "page-toc-button": {
+            "maxTocDepth": 2,
+            "minTocSize": 2
+        },
+        "baidu-tongji": {
+            "token": "8a92d7c6f8fa1707579944211d49b410"
+        }
+   }
+}

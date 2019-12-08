@@ -3,9 +3,9 @@ js audio recorder plugin.
 
 ![](https://travis-ci.org/2fps/recorder.svg?branch=master) ![](https://img.shields.io/npm/v/js-audio-recorder.svg) ![](https://img.shields.io/npm/dw/js-audio-recorder.svg)
 
-English | ![简体中文](./README-zh_CN.md)
+![English](./README.md) | 简体中文
 
-> 主要用于Web端录制短音频。
+> 主要用于Web浏览器端录制短音频。
 
 + 支持录音，暂停，恢复，和录音播放。
 + 支持音频数据的压缩，支持单双通道录音。
