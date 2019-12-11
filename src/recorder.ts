@@ -44,7 +44,7 @@ class Recorder {
     private playStamp: number = 0;              // 播放录音时 AudioContext 记录的时间戳
     private playTime: number = 0;               // 记录录音播放时长
     private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
-    private stream: any                         // 流
+    private stream: any;                        // 流
 
     public fileSize: number = 0;                // 录音大小，byte为单位
     public duration: number;                    // 录音时长
@@ -719,7 +719,7 @@ class Recorder {
      * @returns {dataview}              pcm二进制数据
      * @memberof Recorder
      */
-    static encodePCM(bytes, sampleBits: number, littleEdian: boolean = true)  {
+    static encodePCM(bytes, sampleBits: number, littleEdian: boolean = true) {
         let offset = 0,
             dataLength = bytes.length * (sampleBits / 8),
             buffer = new ArrayBuffer(dataLength),
@@ -813,7 +813,7 @@ class Recorder {
      * @param {*} message   错误消息
      * @memberof Recorder
      */
-    static throwError(message) {
+    static throwError(message: string) {
         throw new Error (message);
     }
 }

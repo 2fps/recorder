@@ -21,7 +21,7 @@ js audio recorder plugin.
 
 ### 在线文档
 
-[文档](http://vegetable.zhuyuntao.cn/Recorder/)
+[文档](http://recorder.api.zhuyuntao.cn/)
 
 ### demo使用
 ```

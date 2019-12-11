@@ -28,6 +28,7 @@
   ],
   "files": [
     "index.js",
+    "src",
     "dist"
   ],
   "author": "2fps",

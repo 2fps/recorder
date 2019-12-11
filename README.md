@@ -21,7 +21,7 @@ English | ![简体中文](./README-zh_CN.md)
 
 ### 在线文档
 
-[文档](http://vegetable.zhuyuntao.cn/Recorder/)
+[文档](http://recorder.api.zhuyuntao.cn/)
 
 ### demo使用
 ```

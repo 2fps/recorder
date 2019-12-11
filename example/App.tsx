@@ -73,9 +73,11 @@ class App extends React.Component {
     }
 
     startRecord = () => {
-        if (!recorder) {
-            const config = this.collectData();
+        this.clearPlay();
 
+        const config = this.collectData();
+
+        if (!recorder) {
             recorder = new Recorder(config);
 
             recorder.onprocess = function(duration) {
@@ -84,7 +86,7 @@ class App extends React.Component {
                 // });
                 // 推荐使用 onprogress 
             }
-
+    
             recorder.onprogress = (params) => {
                 this.setState({
                     duration: params.duration.toFixed(5),
@@ -96,13 +98,12 @@ class App extends React.Component {
                     console.log('音频总数据：', params.data);
                 }
             }
-
             // 定时获取录音的数据并播放
             config.compiling && (playTimer = setInterval(() => {
                 if (!recorder) {
                     return;
                 }
-
+    
                 let newData = recorder.getNextData();
                 if (!newData.length) {
                     return;
@@ -110,29 +111,32 @@ class App extends React.Component {
                 let byteLength = newData[0].byteLength
                 let buffer = new ArrayBuffer(newData.length * byteLength)
                 let dataView = new DataView(buffer)
-
+    
                     // 数据合并
                 for (let i = 0, iLen = newData.length; i < iLen; ++i) {
                     for (let j = 0, jLen = newData[i].byteLength; j < jLen; ++j) {
                         dataView.setInt8(i * byteLength + j, newData[i].getInt8(j))
                     }
                 }
-
+    
                 // 将录音数据转成WAV格式，并播放
                 let a = Recorder.encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
                 let blob = new Blob([ a ], { type: 'audio/wav' });
-
+    
                 Recorder.playAudio(blob);
             }, 3000))
-    
-            recorder.start().then(() => {
-                console.log('开始录音');
-            }, (error) => {
-                console.log(`异常了,${error.name}:${error.message}`);
-            });
-            // 开始绘制canvas
-            this.drawRecord();
+        } else {
+            recorder.stop();
         }
+
+// debugger
+        recorder.start().then(() => {
+            console.log('开始录音');
+        }, (error) => {
+            console.log(`异常了,${error.name}:${error.message}`);
+        });
+        // 开始绘制canvas
+        this.drawRecord();
     }
 
     drawRecord = () => {
@@ -191,8 +195,6 @@ class App extends React.Component {
         drawRecordId && cancelAnimationFrame(drawRecordId);
         drawRecordId = null;
     }
-    recordRecognition = () => {
-    }
     playRecord = () => {
         recorder && recorder.play();
         console.log('播放录音');
@@ -212,6 +214,10 @@ class App extends React.Component {
             clearInterval(playTimer);
             playTimer = null;
         }
+        if (drawRecordId) {
+            cancelAnimationFrame(drawRecordId);
+            drawRecordId = null;
+        }
     }
     stopPlay = () => {
         this.clearPlay();
@@ -228,7 +234,6 @@ class App extends React.Component {
             });
         }
     }
-
     downloadPCM = () => {
         recorder && recorder.downloadPCM();
     }
