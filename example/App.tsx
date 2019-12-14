@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Button, Container, Statistic, Form, Divider, Checkbox, Segment } from 'semantic-ui-react';
 // import Recorder from './recorder';
 import Recorder from '../src/recorder';
+import { encodeWAV } from '../src/transform/transform';
+import Player from '../src/player/player';
 
 import Translate from './components/Application/Translate/Translate';
 
@@ -98,6 +100,23 @@ class App extends React.Component {
                     console.log('音频总数据：', params.data);
                 }
             }
+            
+            recorder.onplay = () => {
+                console.log('%c回调监听，开始播放音频', 'color: #2196f3')
+            }
+            recorder.onpauseplay = () => {
+                console.log('%c回调监听，暂停播放音频', 'color: #2196f3')
+            }
+            recorder.onresumeplay = () => {
+                console.log('%c回调监听，恢复播放音频', 'color: #2196f3')
+            }
+            recorder.onstopplay = () => {
+                console.log('%c回调监听，停止播放音频', 'color: #2196f3')
+            }
+            // recorder.onplayend = () => {
+            //     console.log('%c回调监听，音频播放结束', 'color: #2196f3')
+            // }
+
             // 定时获取录音的数据并播放
             config.compiling && (playTimer = setInterval(() => {
                 if (!recorder) {
@@ -120,16 +139,17 @@ class App extends React.Component {
                 }
     
                 // 将录音数据转成WAV格式，并播放
-                let a = Recorder.encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
-                let blob = new Blob([ a ], { type: 'audio/wav' });
+                let a = encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
+                let blob: any = new Blob([ a ], { type: 'audio/wav' });
     
-                Recorder.playAudio(blob);
+                blob.arrayBuffer().then((arraybuffer) => {
+                    Player.play(arraybuffer);
+                });
             }, 3000))
         } else {
             recorder.stop();
         }
 
-// debugger
         recorder.start().then(() => {
             console.log('开始录音');
         }, (error) => {
@@ -242,7 +262,9 @@ class App extends React.Component {
     }
 
     uploadAudio = (e) => {
-        Recorder.playAudio(e.target.files[0]);
+        e.target.files[0].arrayBuffer().then((arraybuffer) => {
+            Player.play(arraybuffer);
+        });
     }
 
     componentDidMount() {
