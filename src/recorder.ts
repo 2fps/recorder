@@ -1,4 +1,3 @@
-import { throwError } from './exception/exception';
 import { downloadPCM, downloadWAV } from './download/download';
 import { compress, encodePCM, encodeWAV } from './transform/transform';
 import Player from './player/player';
@@ -17,7 +16,7 @@ interface recorderConfig {
 }
 
 class Recorder {
-    private isrecording: boolean;               // 是否正在录音
+    private isrecording: boolean = false;       // 是否正在录音
     private isplaying: boolean = false;         // 是否正在播放
     private ispause: boolean;                   // 是否是暂停
     private context: any;
@@ -162,6 +161,25 @@ class Recorder {
                 data: this.tempPCM,     // 当前所有的pcm数据，调用者控制增量
             });
         }
+    }
+    /**
+     * 重新修改配置
+     *
+     * @param {recorderConfig} [options={}]
+     * @memberof Recorder
+     */
+    public setOption(options: recorderConfig = {}) {
+        this.destroy();
+        this.config = {
+            // 采样数位 8, 16
+            sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
+            // 采样率
+            sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
+            // 声道数，1或2
+            numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
+            // 是否需要边录边转，默认关闭，后期使用web worker
+            compiling: !!options.compiling || false,
+        };
     }
 
     /**
@@ -527,7 +545,7 @@ class Recorder {
      * 如firefox 30 等低版本浏览器没有 close方法
      */
     private closeAudioContext() {
-        if (this.context.close) {
+        if (this.context.close && this.context.state !== 'closed') {
             return this.context.close();
         } else {
             return new Promise((resolve) => {

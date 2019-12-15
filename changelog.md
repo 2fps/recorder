@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
++ 增加 setOption 接口，用于重置 recorder 的配置。
 + 增加播放音频时的，开始音频播放(onplay)，暂停音频播放(onpauseplay)，恢复音频播放(onresumeplay)，停止音频播放(onstopplay)，音频播放结束回调(onplayend)。
 + 简单拆分文件。
 

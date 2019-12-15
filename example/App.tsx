@@ -74,6 +74,16 @@ class App extends React.Component {
         };
     }
 
+    modifyOption = () => {
+        if (recorder) {
+            const config = this.collectData();
+
+            recorder.setOption(config);
+
+            recorder = null;
+        }
+    }
+
     startRecord = () => {
         this.clearPlay();
 
@@ -303,7 +313,12 @@ class App extends React.Component {
                         <Checkbox label='边录边转(播)' checked={ this.state.compiling } toggle onChange={ this.changeCompile } />
                     </Form.Field>
                 </Form>
-                <Segment inverted color='teal'>修改配置后，请注销录音实例。</Segment>
+                <Divider />
+                <div>
+                    <Button primary onClick={ this.modifyOption }>
+                        重置配置
+                    </Button>
+                </div>
                 <Divider />
                 <div>
                     <Button primary onClick={ this.startRecord } disabled={ this.state.isRecording }>
