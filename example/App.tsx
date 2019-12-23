@@ -31,6 +31,11 @@ const numChannelOptions = [
     { text: '双', value: 2 },
 ];
 
+// 定时获取录音文件播放了多少
+setInterval(() => {
+    recorder && recorder.getPlayTime() && console.log('已经播放了:', recorder.getPlayTime());
+}, 300)
+
 class App extends React.Component {
     state = {
         sampleBit: 8,

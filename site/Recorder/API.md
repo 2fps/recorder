@@ -53,6 +53,15 @@ recorder.stop();
 recorder.play();
 ```
 
+### getPlayTime()
+> 获取音频已经播的时长。
+
++ 返回: number。
+
+```js
+recorder.getPlayTime();
+```
+
 ### pausePlay()
 > 暂停录音播放。
 

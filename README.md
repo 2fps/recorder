@@ -115,7 +115,14 @@ recorder.play();
 ```
 + 返回: void
 
-支持不结束直接调用录音播放。
+支持不结束(stop)直接调用录音播放。
+
+### 播放时长
+```js
+// 获取音频已经播的时长
+recorder.getPlayTime();
+```
++ 返回: number
 
 ### 暂停录音播放
 ```js

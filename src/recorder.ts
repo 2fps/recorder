@@ -43,6 +43,7 @@ class Recorder {
     private prevDomainData: any;                // 存放前一次图形化的数据
     private playStamp: number = 0;              // 播放录音时 AudioContext 记录的时间戳
     private playTime: number = 0;               // 记录录音播放时长
+    private totalPlayTime: number = 0;          // 音频播放总长度
     private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
     private stream: any;                        // 流
 
@@ -254,7 +255,31 @@ class Recorder {
         this.isplaying = true;
         this.playTime = 0;
 
+        // 记录开始播放的时间
         this.playAudioData();
+    }
+
+    /**
+     * 获取音频文件已经播放了的时间
+     *
+     * @returns {number}
+     * @memberof Recorder
+     */
+    public getPlayTime(): number {
+        let _now = 0;
+
+        if (this.isplaying) {
+            // 播放中，使用预留时间 + 偏差时间
+            _now = this.context.currentTime - this.playStamp + this.playTime;
+        } else {
+            _now = this.playTime;
+        }
+
+        if (_now >= this.totalPlayTime) {
+            _now = this.totalPlayTime;
+        }
+
+        return _now;
     }
 
     /**
@@ -342,6 +367,7 @@ class Recorder {
 
             // 设置数据
             this.source.buffer = buffer;
+            this.totalPlayTime = this.source.buffer.duration;
             // connect到分析器，还是用录音的，因为播放时不能录音的
             this.source.connect(this.analyser);
             this.analyser.connect(this.context.destination);
@@ -597,6 +623,7 @@ class Recorder {
         this.ispause = false;
         this.isplaying = false;
         this.playTime = 0;
+        this.totalPlayTime = 0;
 
         // 录音前，关闭录音播放
         if (this.source) {

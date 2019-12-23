@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.5.4] 2019-12-23
+### Added
++ 增加[issues 27](https://github.com/2fps/recorder/issues/27)中提到的接口 getPlayTime() 方法，用于获取音频的当前时间。
+
 ## [0.5.3] 2019-12-03
 ### Fixed
 + 修改[issues 23](https://github.com/2fps/recorder/issues/23)中提到的问题：在录音结束时，释放录音权限。
