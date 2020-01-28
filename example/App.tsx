@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Container, Statistic, Form, Divider, Checkbox, Segment } from 'semantic-ui-react';
 // import Recorder from './recorder';
-import Recorder from '../src/recorder';
+import Recorder from '../src/index';
 import { encodeWAV } from '../src/transform/transform';
 import Player from '../src/player/player';
 
@@ -96,9 +96,9 @@ class App extends React.Component {
                 // this.setState({
                 //     duration: duration.toFixed(5),
                 // });
-                // 推荐使用 onprogress 
+                // 推荐使用 onprogress
             }
-    
+
             recorder.onprogress = (params) => {
                 this.setState({
                     duration: params.duration.toFixed(5),
@@ -110,7 +110,7 @@ class App extends React.Component {
                     console.log('音频总数据：', params.data);
                 }
             }
-            
+
             recorder.onplay = () => {
                 console.log('%c回调监听，开始播放音频', 'color: #2196f3')
             }
@@ -132,7 +132,7 @@ class App extends React.Component {
                 if (!recorder) {
                     return;
                 }
-    
+
                 let newData = recorder.getNextData();
                 if (!newData.length) {
                     return;
@@ -140,18 +140,18 @@ class App extends React.Component {
                 let byteLength = newData[0].byteLength
                 let buffer = new ArrayBuffer(newData.length * byteLength)
                 let dataView = new DataView(buffer)
-    
+
                     // 数据合并
                 for (let i = 0, iLen = newData.length; i < iLen; ++i) {
                     for (let j = 0, jLen = newData[i].byteLength; j < jLen; ++j) {
                         dataView.setInt8(i * byteLength + j, newData[i].getInt8(j))
                     }
                 }
-    
+
                 // 将录音数据转成WAV格式，并播放
                 let a = encodeWAV(dataView, config.sampleRate, config.sampleRate, config.numChannels, config.sampleBits)
                 let blob: any = new Blob([ a ], { type: 'audio/wav' });
-    
+
                 blob.arrayBuffer().then((arraybuffer) => {
                     Player.play(arraybuffer);
                 });
@@ -166,34 +166,34 @@ class App extends React.Component {
             console.log(`异常了,${error.name}:${error.message}`);
         });
         // 开始绘制canvas
-        this.drawRecord();
+        // this.drawRecord();
     }
 
     drawRecord = () => {
         // 用requestAnimationFrame稳定60fps绘制
         drawRecordId = requestAnimationFrame(this.drawRecord);
-    
+
         // 实时获取音频大小数据
         let dataArray = recorder.getRecordAnalyseData(),
             bufferLength = dataArray.length;
-    
+
         // 填充背景色
         ctx.fillStyle = 'rgb(200, 200, 200)';
         ctx.fillRect(0, 0, oCanvas.width, oCanvas.height);
-        
+
         // 设定波形绘制颜色
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'rgb(0, 0, 0)';
-        
+
         ctx.beginPath();
-        
+
         var sliceWidth = oCanvas.width * 1.0 / bufferLength, // 一个点占多少位置，共有bufferLength个点要绘制
             x = 0;          // 绘制点的x轴位置
-    
+
         for (var i = 0; i < bufferLength; i++) {
             var v = dataArray[i] / 128.0;
             var y = v * oCanvas.height / 2;
-        
+
             if (i === 0) {
                 // 第一个点
                 ctx.moveTo(x, y);
@@ -204,7 +204,7 @@ class App extends React.Component {
             // 依次平移，绘制所有点
             x += sliceWidth;
         }
-        
+
         ctx.lineTo(oCanvas.width, oCanvas.height / 2);
         ctx.stroke();
     }

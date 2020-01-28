@@ -1,5 +1,3 @@
-declare let document: any;
-
 /**
  * 下载录音文件
  * @private

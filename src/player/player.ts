@@ -2,46 +2,47 @@ import { throwError } from '../exception/exception'
 
 declare let window: any;
 
-let _source: any = null;
-let _playTime: number = 0;
-let _playStamp: number = 0;
-let _context: any = null;
-let _analyser: any = null;
+let source: any = null;
+let playTime: number = 0;
+let playStamp: number = 0;
+let context: any = null;
+let analyser: any = null;
 
-let _audioData: any = null;
-let _hasInit: boolean = false;           // 是否已经初始化了
-let _endplayFn: any = function() {};
+let audioData: any = null;
+let hasInit: boolean = false;           // 是否已经初始化了
+let endplayFn: any = function() {};
 
 /**
  * 初始化
  */
-function _init(): void {
-    _context = new (window.AudioContext || window.webkitAudioContext)();
-    _analyser = _context.createAnalyser();
+function init(): void {
+    context = new (window.AudioContext || window.webkitAudioContext)();
+    // analyser = context.createAnalyser();
 }
 
 /**
  * play
  * @returns {Promise<{}>}
  */
-function _playAudio(): Promise<{}> {
-    return _context.decodeAudioData(_audioData.slice(0), buffer => {
-        _source = _context.createBufferSource();
+function playAudio(): Promise<{}> {
+    return context.decodeAudioData(audioData.slice(0), buffer => {
+        source = context.createBufferSource();
 
         // 播放结束的事件绑定
-        _source.onended = () => {
-            _endplayFn();
+        source.onended = () => {
+            endplayFn();
         }
 
         // 设置数据
-        _source.buffer = buffer;
+        source.buffer = buffer;
         // connect到分析器，还是用录音的，因为播放时不能录音的
-        _source.connect(_analyser);
-        _analyser.connect(_context.destination);
-        _source.start(0, _playTime);
+        // source.connect(analyser);
+        // analyser.connect(context.destination);
+        source.connect(context.destination);
+        source.start(0, playTime);
 
         // 记录当前的时间戳，以备暂停时使用
-        _playStamp = _context.currentTime;
+        playStamp = context.currentTime;
     }, function(e) {
         throwError(e);
     });
@@ -55,17 +56,17 @@ export default class Player {
      * @memberof Player
      */
     static play(arraybuffer): Promise<{}> {
-        if (!_hasInit) {
+        if (!hasInit) {
             // 第一次播放要初始化
-            _init();
+            init();
 
-            _hasInit = true;
+            hasInit = true;
         }
         this.stopPlay();
         // 缓存播放数据
-        _audioData = arraybuffer;
-    
-        return _playAudio()
+        audioData = arraybuffer;
+
+        return playAudio();
     }
 
     /**
@@ -73,9 +74,9 @@ export default class Player {
      * @memberof Player
      */
     static pausePlay(): void {
-        _source && _source.disconnect();
+        source && source.disconnect();
         // 多次暂停需要累加
-        _playTime += _context.currentTime - _playStamp;
+        playTime += context.currentTime - playStamp;
     }
 
     /**
@@ -83,7 +84,7 @@ export default class Player {
      * @memberof Player
      */
     static resumePlay(): Promise<{}> {
-        return _playAudio();
+        return playAudio();
     }
 
     /**
@@ -91,10 +92,10 @@ export default class Player {
      * @memberof Player
      */
     static stopPlay() {
-        _playTime = 0;
-        _audioData = null;
+        playTime = 0;
+        audioData = null;
 
-        _source && _source.stop();
+        source && source.stop();
     }
 
     /**
@@ -105,6 +106,6 @@ export default class Player {
      * @memberof Player
      */
     static addPlayEnd(fn: any = function() {}) {
-        _endplayFn = fn;
+        endplayFn = fn;
     }
 }

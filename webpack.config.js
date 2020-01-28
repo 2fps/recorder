@@ -7,7 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 let config = {
     // 入口
     entry: {
-        Recorder: path.resolve(__dirname, 'src/recorder.ts'),
+        Recorder: path.resolve(__dirname, 'src/index.ts'),
     },
     devtool: 'source-map',
     devServer: {
@@ -57,7 +57,7 @@ module.exports = (env, argv) => {
 
         // 移动端下增加 vconsole 调试
         config.entry.vconsole = path.resolve(__dirname, 'example/vconsole.ts');
-        // 开发模式下增加 example 
+        // 开发模式下增加 example
         config.entry.example = path.resolve(__dirname, 'example/example.ts');
 
         // 开发模式下才要用到html
@@ -68,7 +68,7 @@ module.exports = (env, argv) => {
             }
         ));
     }
-    
+
     return config;
 }
 

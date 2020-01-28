@@ -1,3 +1,4 @@
+
 interface recorderConfig {
     sampleBits?: number,        // 采样位数
     sampleRate?: number,        // 采样率
