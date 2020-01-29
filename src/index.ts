@@ -140,7 +140,6 @@ class Index extends Recorder {
 
     /**
      * 播放录音
-     *
      */
     play(): void {
         this.stop();
@@ -150,6 +149,13 @@ class Index extends Recorder {
         this.onplay();
         Player.addPlayEnd(this.onplayend);
         Player.play(this.getWAV().buffer);
+    }
+
+    /**
+     * 获取已经播放了多长时间
+     */
+    getPlayTime(): number {
+        return Player.getPlayTime();
     }
 
     /**
@@ -200,6 +206,12 @@ class Index extends Recorder {
         Player.stopPlay();
     }
 
+    destroy(): Promise<{}> {
+        Player.stopPlay();
+
+        return this.destroyRecord();
+    }
+
     /**
      * 获取当前已经录音的PCM音频数据
      *
@@ -231,27 +243,38 @@ class Index extends Recorder {
      *
      * @memberof Recorder
      */
-    getRecordAnalyseData() {
-        if (this.ispause) {
-            // 暂停时不需要发送录音的数据，处理FF下暂停仍就获取录音数据的问题
-            // 为防止暂停后，画面空白，故返回先前的数据
-            return this.prevDomainData;
-        }
-        let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-        // 将数据拷贝到dataArray中。
-        this.analyser.getByteTimeDomainData(dataArray);
+    // getRecordAnalyseData() {
+    //     if (this.ispause) {
+    //         // 暂停时不需要发送录音的数据，处理FF下暂停仍就获取录音数据的问题
+    //         // 为防止暂停后，画面空白，故返回先前的数据
+    //         return this.prevDomainData;
+    //     }
+    //     let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+    //     // 将数据拷贝到dataArray中。
+    //     this.analyser.getByteTimeDomainData(dataArray);
 
-        return ( this.prevDomainData = dataArray);
-    }
+    //     return ( this.prevDomainData = dataArray);
+    // }
 
     /**
      * 获取录音播放时的波形数据，
      *
      * @memberof Recorder
      */
-    getPlayAnalyseData() {
-        // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
-        return this.getRecordAnalyseData();
+    // getPlayAnalyseData() {
+    //     // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
+    //     return this.getRecordAnalyseData();
+    // }
+
+    getPCM() {
+        // 先停止
+        this.stop();
+        // 二维转一维
+        let data: any = this.getData();
+        // 压缩或扩展
+        data = compress(data, this.inputSampleRate, this.outputSampleRate);
+        // 按采样位数重新编码
+        return encodePCM(data, this.oututSampleBits, this.littleEdian);
     }
 
     /**
@@ -261,8 +284,6 @@ class Index extends Recorder {
      * @memberof Recorder
      */
     getPCMBlob() {
-        // 先停止
-        this.stop();
         return new Blob([ this.getPCM() ]);
     }
 
@@ -279,14 +300,25 @@ class Index extends Recorder {
     }
 
     /**
+     * 获取WAV编码的二进制数据(dataview)
+     *
+     * @returns {dataview}  WAV编码的二进制数据
+     * @memberof Recorder
+     */
+    getWAV() {
+        let pcmTemp = this.getPCM();
+
+        return encodeWAV(pcmTemp, this.inputSampleRate,
+            this.outputSampleRate, this.config.numChannels, this.oututSampleBits, this.littleEdian);;
+    }
+
+    /**
      * 获取WAV音频的blob数据
      *
      * @returns { blob }    wav格式blob数据
      * @memberof Recorder
      */
     getWAVBlob() {
-        // 先停止
-        this.stop();
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 

@@ -230,6 +230,9 @@ class App extends React.Component {
         console.log('播放录音');
         drawRecordId && cancelAnimationFrame(drawRecordId);
         drawRecordId = null;
+        // setInterval(() => {
+        //     recorder.getPlayTime()
+        // }, 500)
     }
     pausePlay = () => {
         recorder && recorder.pausePlay();
@@ -265,10 +268,16 @@ class App extends React.Component {
         }
     }
     downloadPCM = () => {
-        recorder && recorder.downloadPCM();
+        if (recorder) {
+            console.log('pcm: ', recorder.getPCMBlob());
+            recorder.downloadPCM();
+        }
     }
     downloadWAV = () => {
-        recorder && recorder.downloadWAV();
+        if (recorder) {
+            console.log('wav: ', recorder.getWAVBlob());
+            recorder.downloadWAV();
+        }
     }
 
     uploadAudio = (e) => {

@@ -15,28 +15,28 @@ interface recorderConfig {
 
 export default class Recorder {
     private context: any;
+    protected config: recorderConfig;             // 配置
 
 
 
 
-    private config: recorderConfig;             // 配置
     private size: number = 0;                       // 录音文件总长度
     private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
     private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
     private PCM: any;                           // 最终的PCM数据缓存，避免多次encode
     private tempPCM: Array<DataView> = [];      // 边录边转时临时存放pcm的
     private audioInput: any;
-    private inputSampleRate: number;            // 输入采样率
-    private outputSampleRate: number;           // 输出采样率
-    private oututSampleBits: number;            // 输出采样位数
+    protected inputSampleRate: number;            // 输入采样率
+    protected inputSampleBits: number = 16;       // 输入采样位数
+    protected outputSampleRate: number;           // 输出采样率
+    protected oututSampleBits: number;            // 输出采样位数
     private source: any;                        // 音频输入
     private recorder: any;
     private stream: any;                        // 流
-    private inputSampleBits: number = 16;       // 输入采样位数
-    private littleEdian: boolean;               // 是否是小端字节序
+    protected littleEdian: boolean;               // 是否是小端字节序
 
-    public fileSize: number = 0;                // 录音大小，byte为单位
-    public duration: number = 0;                    // 录音时长
+    protected fileSize: number = 0;                // 录音大小，byte为单位
+    protected duration: number = 0;                    // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
     public onprocess: (duration: number) => void;
     // onprocess 替代函数，保持原来的 onprocess 向下兼容
@@ -167,56 +167,10 @@ export default class Recorder {
     }
 
 
-    /**
-     * 获取WAV编码的二进制数据(dataview)
-     *
-     * @returns {dataview}  WAV编码的二进制数据
-     * @memberof Recorder
-     */
-    getWAV() {
-        let pcmTemp = this.getPCM(),
-            wavTemp = encodeWAV(pcmTemp, this.inputSampleRate,
-                this.outputSampleRate, this.config.numChannels, this.oututSampleBits, this.littleEdian);
-
-        return wavTemp;
-    }
-
-    /**
-     * 获取PCM编码的二进制数据(dataview)
-     *
-     * @returns {dataview}  PCM二进制数据
-     * @memberof Recorder
-     */
-    getPCM() {
-        if (this.tempPCM.length) {
-            // 优先使用边录边存下的
-            // 将存下的 DataView 数据合并了
-            let buffer = new ArrayBuffer( this.tempPCM.length * this.tempPCM[0].byteLength ),
-                pcm = new DataView(buffer),
-                offset = 0;
-
-            // 遍历存储数据
-            this.tempPCM.forEach((block) => {
-                for (let i = 0, len = block.byteLength; i < len; ++i) {
-                    pcm.setInt8(offset, block.getInt8(i));
-
-                    offset++;
-                }
-            });
-            // 最终的PCM数据已经有了，temp不需要了
-            this.PCM = pcm;
-            this.tempPCM = [];
-        }
-        if (this.PCM) {
-            // 给缓存
-            return this.PCM;
-        }
-        // 二维转一维
+    getData() {
         let data: any = this.flat();
-        // 压缩或扩展
-        data = compress(data, this.inputSampleRate, this.outputSampleRate);
-        // 按采样位数重新编码
-        return this.PCM = encodePCM(data, this.oututSampleBits, this.littleEdian);
+
+        return data;
     }
 
     /**
@@ -306,7 +260,7 @@ export default class Recorder {
             this.lBuffer.push(new Float32Array(lData));
 
             this.size += lData.length;
-console.log('lData', lData)
+
             // 判断是否有右声道数据
             if (2 === this.config.numChannels) {
                 rData = e.inputBuffer.getChannelData(1);
