@@ -100,6 +100,9 @@ class App extends React.Component {
             }
 
             recorder.onprogress = (params) => {
+                // console.log(recorder.duration);
+                // console.log(recorder.fileSize);
+
                 this.setState({
                     duration: params.duration.toFixed(5),
                     fileSize: params.fileSize,
@@ -166,7 +169,7 @@ class App extends React.Component {
             console.log(`异常了,${error.name}:${error.message}`);
         });
         // 开始绘制canvas
-        // this.drawRecord();
+        this.drawRecord();
     }
 
     drawRecord = () => {
@@ -319,12 +322,12 @@ class App extends React.Component {
                         />
                     </Form.Group>
                     <Form.Field>
-                        <Checkbox label='边录边转(播)' checked={ this.state.compiling } toggle onChange={ this.changeCompile } />
+                        <Checkbox label='边录边转(播)' disabled checked={ this.state.compiling } toggle onChange={ this.changeCompile } />
                     </Form.Field>
                 </Form>
                 <Divider />
                 <div>
-                    <Button primary onClick={ this.modifyOption }>
+                    <Button primary onClick={ this.modifyOption } disabled>
                         重置配置
                     </Button>
                 </div>

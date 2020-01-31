@@ -38,7 +38,7 @@ class Index extends Recorder {
     // private inputSampleBits: number = 16;       // 输入采样位数
     // private outputSampleRate: number;           // 输出采样率
     // private oututSampleBits: number;            // 输出采样位数
-    private analyser: any;
+    // private analyser: any;
     // private littleEdian: boolean;               // 是否是小端字节序
     private prevDomainData: any;                // 存放前一次图形化的数据
     // private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
@@ -243,28 +243,19 @@ class Index extends Recorder {
      *
      * @memberof Recorder
      */
-    // getRecordAnalyseData() {
-    //     if (this.ispause) {
-    //         // 暂停时不需要发送录音的数据，处理FF下暂停仍就获取录音数据的问题
-    //         // 为防止暂停后，画面空白，故返回先前的数据
-    //         return this.prevDomainData;
-    //     }
-    //     let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-    //     // 将数据拷贝到dataArray中。
-    //     this.analyser.getByteTimeDomainData(dataArray);
-
-    //     return ( this.prevDomainData = dataArray);
-    // }
+    getRecordAnalyseData() {
+        return this.getAnalyseData();
+    }
 
     /**
      * 获取录音播放时的波形数据，
      *
      * @memberof Recorder
      */
-    // getPlayAnalyseData() {
-    //     // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
-    //     return this.getRecordAnalyseData();
-    // }
+    getPlayAnalyseData() {
+        // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
+        return this.getRecordAnalyseData();
+    }
 
     getPCM() {
         // 先停止

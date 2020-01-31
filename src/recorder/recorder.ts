@@ -20,6 +20,7 @@ export default class Recorder {
 
 
 
+    private analyser: any;
     private size: number = 0;                       // 录音文件总长度
     private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
     private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
@@ -72,7 +73,7 @@ export default class Recorder {
             // 声道数，1或2
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
             // 是否需要边录边转，默认关闭，后期使用web worker
-            compiling: !!options.compiling || false,
+            // compiling: !!options.compiling || false,  // 先移除
         };
         // 设置采样的参数
         this.outputSampleRate = this.config.sampleRate;     // 输出采样率
@@ -114,9 +115,9 @@ export default class Recorder {
             Recorder.throwError(error.name + " : " + error.message);
         } */).then(() => {
             // audioInput 为声音源，连接到处理节点 recorder
-            // this.audioInput.connect(this.analyser);
-            // this.analyser.connect(this.recorder);
-            this.audioInput.connect(this.recorder);
+            this.audioInput.connect(this.analyser);
+            this.analyser.connect(this.recorder);
+            // this.audioInput.connect(this.recorder);
             // 处理节点 recorder 连接到扬声器
             this.recorder.connect(this.context.destination);
         });
@@ -138,9 +139,9 @@ export default class Recorder {
      */
     resumeRecord(): void {
         // 暂停的才可以开始
-        // this.audioInput && this.audioInput.connect(this.analyser);
-        // this.analyser.connect(this.recorder);
-        this.audioInput.connect(this.recorder);
+        this.audioInput && this.audioInput.connect(this.analyser);
+        this.analyser.connect(this.recorder);
+        // this.audioInput.connect(this.recorder);
         // 处理节点 recorder 连接到扬声器
         this.recorder.connect(this.context.destination);
     }
@@ -166,6 +167,13 @@ export default class Recorder {
         return this.closeAudioContext();
     }
 
+    getAnalyseData() {
+        let dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+        // 将数据拷贝到dataArray中。
+        this.analyser.getByteTimeDomainData(dataArray);
+
+        return dataArray;
+    }
 
     getData() {
         let data: any = this.flat();
@@ -237,8 +245,8 @@ export default class Recorder {
 
         this.context = new (window.AudioContext || window.webkitAudioContext)();
 
-        // this.analyser = this.context.createAnalyser();  // 录音分析节点
-        // this.analyser.fftSize = 2048;                   // 表示存储频域的大小
+        this.analyser = this.context.createAnalyser();  // 录音分析节点
+        this.analyser.fftSize = 2048;                   // 表示存储频域的大小
 
         // 第一个参数表示收集采样的大小，采集完这么多后会触发 onaudioprocess 接口一次，该值一般为1024,2048,4096等，一般就设置为4096
         // 第二，三个参数分别是输入的声道数和输出的声道数，保持一致即可。
