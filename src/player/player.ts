@@ -19,7 +19,8 @@ let endplayFn: any = function() {};
  */
 function init(): void {
     context = new (window.AudioContext || window.webkitAudioContext)();
-    // analyser = context.createAnalyser();
+    analyser = context.createAnalyser();
+    analyser.fftSize = 2048;                   // 表示存储频域的大小
 }
 
 /**
@@ -45,9 +46,8 @@ function playAudio(): Promise<{}> {
         // 设置数据
         source.buffer = buffer;
         // connect到分析器，还是用录音的，因为播放时不能录音的
-        // source.connect(analyser);
-        // analyser.connect(context.destination);
-        source.connect(context.destination);
+        source.connect(analyser);
+        analyser.connect(context.destination);
         source.start(0, playTime);
 
         // 记录当前的时间戳，以备暂停时使用
@@ -105,6 +105,14 @@ export default class Player {
         audioData = null;
 
         source && source.stop();
+    }
+
+    static getAnalyseData() {
+        let dataArray = new Uint8Array(analyser.frequencyBinCount);
+        // 将数据拷贝到dataArray中。
+        analyser.getByteTimeDomainData(dataArray);
+
+        return dataArray;
     }
 
     /**

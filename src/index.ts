@@ -21,40 +21,6 @@ class Index extends Recorder {
     private ispause: boolean = false;           // 是否是暂停
     private isplaying: boolean = false;         // 是否正在播放
 
-
-
-
-    // private context: any;
-    // private config: recorderConfig;             // 配置
-    // private size: number;                       // 录音文件总长度
-    // private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
-    // private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
-    // private PCM: any;                           // 最终的PCM数据缓存，避免多次encode
-    // private tempPCM: Array<DataView> = [];      // 边录边转时临时存放pcm的
-    // private audioInput: any;
-    // private inputSampleRate: number;            // 输入采样率
-    // private source: any;                        // 音频输入
-    // private recorder: any;
-    // private inputSampleBits: number = 16;       // 输入采样位数
-    // private outputSampleRate: number;           // 输出采样率
-    // private oututSampleBits: number;            // 输出采样位数
-    // private analyser: any;
-    // private littleEdian: boolean;               // 是否是小端字节序
-    private prevDomainData: any;                // 存放前一次图形化的数据
-    // private offset: number = 0;                 // 边录边转，记录外部的获取偏移位置
-    // private stream: any;                        // 流
-
-    public fileSize: number = 0;                // 录音大小，byte为单位
-    public duration: number;                    // 录音时长
-    // 正在录音时间，参数是已经录了多少时间了
-    public onprocess: (duration: number) => void;
-    // onprocess 替代函数，保持原来的 onprocess 向下兼容
-    public onprogress: (payload: {
-        duration: number,
-        fileSize: number,
-        vol: number,
-        data: Array<DataView>,      // 当前存储的所有录音数据
-    }) => void;
     public onplay: () => void;                  // 音频播放回调
     public onpauseplay: () => void;             // 音频暂停回调
     public onresumeplay: () => void;            // 音频恢复播放回调
@@ -76,37 +42,26 @@ class Index extends Recorder {
      * @param {recorderConfig} [options={}]
      * @memberof Recorder
      */
-    // public setOption(options: recorderConfig = {}) {
-    //     this.destroy();
-    //     this.config = {
-    //         // 采样数位 8, 16
-    //         sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
-    //         // 采样率
-    //         sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
-    //         // 声道数，1或2
-    //         numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
-    //         // 是否需要边录边转，默认关闭，后期使用web worker
-    //         compiling: !!options.compiling || false,
-    //     };
-    // }
+    public setOption(options: recorderConfig = {}) {
+        this.setNewOption(options);
+    }
 
     /**
-     * 开始录音
-     *
+     * Start the recording
      */
     start(): Promise<{}> {
         if (this.isrecording) {
             // 正在录音，则不允许
-            return;     // 改成返回promise
+            return Promise.reject();
         }
-// 录音前，关闭录音播放
+
         this.isrecording = true;
+
         return this.startRecord();
     }
 
     /**
-     * 暂停录音
-     *
+     * Pause the recording
      */
     pause(): void {
         if (this.isrecording && !this.ispause) {
@@ -118,7 +73,6 @@ class Index extends Recorder {
 
     /**
      * 继续录音
-     *
      */
     resume(): void {
         if (this.isrecording && this.ispause) {
@@ -147,8 +101,8 @@ class Index extends Recorder {
         this.isplaying = true;
 
         this.onplay();
-        Player.addPlayEnd(this.onplayend);
-        Player.play(this.getWAV().buffer);
+        Player.addPlayEnd(this.onplayend);  // 注册播放完成后的回调事件
+        Player.play(this.getWAV().buffer);  // 播放
     }
 
     /**
@@ -254,15 +208,15 @@ class Index extends Recorder {
      */
     getPlayAnalyseData() {
         // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
-        return this.getRecordAnalyseData();
+        return Player.getAnalyseData();
     }
 
     getPCM() {
         // 先停止
         this.stop();
-        // 二维转一维
+        // 获取pcm数据
         let data: any = this.getData();
-        // 压缩或扩展
+        // 根据输入输出比例 压缩或扩展
         data = compress(data, this.inputSampleRate, this.outputSampleRate);
         // 按采样位数重新编码
         return encodePCM(data, this.oututSampleBits, this.littleEdian);
@@ -299,6 +253,7 @@ class Index extends Recorder {
     getWAV() {
         let pcmTemp = this.getPCM();
 
+        // PCM增加44字节的头就是WAV格式了
         return encodeWAV(pcmTemp, this.inputSampleRate,
             this.outputSampleRate, this.config.numChannels, this.oututSampleBits, this.littleEdian);;
     }

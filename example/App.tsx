@@ -14,6 +14,9 @@ let playTimer = null;
 let oCanvas = null;
 let ctx = null;
 let drawRecordId = null;
+let pCanvas = null;
+let pCtx = null;
+let drawPlayId = null;
 
 const sampleRateOptions = [
     { text: '16000', value: 16000 },
@@ -114,6 +117,7 @@ class App extends React.Component {
                 }
             }
 
+
             recorder.onplay = () => {
                 console.log('%c回调监听，开始播放音频', 'color: #2196f3')
             }
@@ -126,9 +130,10 @@ class App extends React.Component {
             recorder.onstopplay = () => {
                 console.log('%c回调监听，停止播放音频', 'color: #2196f3')
             }
-            // recorder.onplayend = () => {
-            //     console.log('%c回调监听，音频播放结束', 'color: #2196f3')
-            // }
+            recorder.onplayend = () => {
+                // 播放结束后，停止绘制canavs
+                this.stopDrawPlay();
+            }
 
             // 定时获取录音的数据并播放
             config.compiling && (playTimer = setInterval(() => {
@@ -212,6 +217,46 @@ class App extends React.Component {
         ctx.stroke();
     }
 
+    drawPlay = () => {
+        // 用requestAnimationFrame稳定60fps绘制
+        drawPlayId = requestAnimationFrame(this.drawPlay);
+
+        // 实时获取音频大小数据
+        let dataArray = recorder.getPlayAnalyseData(),
+            bufferLength = dataArray.length;
+
+        // 填充背景色
+        pCtx.fillStyle = 'rgb(200, 200, 200)';
+        pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+        // 设定波形绘制颜色
+        pCtx.lineWidth = 2;
+        pCtx.strokeStyle = 'rgb(0, 0, 0)';
+
+        pCtx.beginPath();
+
+        var sliceWidth = pCanvas.width * 1.0 / bufferLength, // 一个点占多少位置，共有bufferLength个点要绘制
+            x = 0;          // 绘制点的x轴位置
+
+        for (var i = 0; i < bufferLength; i++) {
+            var v = dataArray[i] / 128.0;
+            var y = v * pCanvas.height / 2;
+
+            if (i === 0) {
+                // 第一个点
+                pCtx.moveTo(x, y);
+            } else {
+                // 剩余的点
+                pCtx.lineTo(x, y);
+            }
+            // 依次平移，绘制所有点
+            x += sliceWidth;
+        }
+
+        pCtx.lineTo(pCanvas.width, pCanvas.height / 2);
+        pCtx.stroke();
+    }
+
     pauseRecord = () => {
         if (recorder) {
             recorder.pause();
@@ -230,20 +275,23 @@ class App extends React.Component {
     }
     playRecord = () => {
         recorder && recorder.play();
-        console.log('播放录音');
         drawRecordId && cancelAnimationFrame(drawRecordId);
         drawRecordId = null;
+        console.log('播放录音');
+        recorder && this.drawPlay();
         // setInterval(() => {
         //     recorder.getPlayTime()
         // }, 500)
     }
     pausePlay = () => {
+        this.stopDrawPlay();
         recorder && recorder.pausePlay();
         console.log('暂停播放');
     }
     resumePlay = () => {
         recorder && recorder.resumePlay();
         console.log('恢复播放');
+        this.drawPlay();
     }
     clearPlay = () => {
         if (playTimer) {
@@ -254,11 +302,17 @@ class App extends React.Component {
             cancelAnimationFrame(drawRecordId);
             drawRecordId = null;
         }
+        this.stopDrawPlay();
+    }
+    stopDrawPlay= () => {
+        drawPlayId && cancelAnimationFrame(drawPlayId);
+        drawPlayId = null;
     }
     stopPlay = () => {
         this.clearPlay();
         recorder && recorder.stopPlay();
         console.log('停止播放');
+        this.stopDrawPlay();
     }
     destroyRecord = () => {
         this.clearPlay();
@@ -267,6 +321,7 @@ class App extends React.Component {
                 console.log('销毁实例');
                 recorder = null;
                 drawRecordId && cancelAnimationFrame(drawRecordId);
+                this.stopDrawPlay();
             });
         }
     }
@@ -292,6 +347,8 @@ class App extends React.Component {
     componentDidMount() {
         oCanvas = document.getElementById('canvas');
         ctx = oCanvas.getContext("2d");
+        pCanvas = document.getElementById('playChart');
+        pCtx = pCanvas.getContext("2d");
     }
 
     public render() {
@@ -327,13 +384,13 @@ class App extends React.Component {
                 </Form>
                 <Divider />
                 <div>
-                    <Button primary onClick={ this.modifyOption } disabled>
+                    <Button primary onClick={ this.modifyOption }>
                         重置配置
                     </Button>
                 </div>
                 <Divider />
                 <div>
-                    <Button primary onClick={ this.startRecord } disabled={ this.state.isRecording }>
+                    <Button primary onClick={ this.startRecord }>
                         录音开启
                     </Button>
                     <Button primary onClick={ this.pauseRecord }>
@@ -362,7 +419,10 @@ class App extends React.Component {
                     </Statistic>
                 </Statistic.Group>
                 <div>
+                    <span>录音：</span>
                     <canvas id="canvas"></canvas>
+                    <span>播放：</span>
+                    <canvas id="playChart"></canvas>
                 </div>
                 <Divider />
                 <div>

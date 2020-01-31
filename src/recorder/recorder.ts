@@ -15,29 +15,24 @@ interface recorderConfig {
 
 export default class Recorder {
     private context: any;
-    protected config: recorderConfig;             // 配置
-
-
-
-
+    protected config: recorderConfig;               // 配置
     private analyser: any;
     private size: number = 0;                       // 录音文件总长度
-    private lBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(左声道)
-    private rBuffer: Array<Float32Array> = [];  // pcm音频数据搜集器(右声道)
-    private PCM: any;                           // 最终的PCM数据缓存，避免多次encode
-    private tempPCM: Array<DataView> = [];      // 边录边转时临时存放pcm的
+    private lBuffer: Array<Float32Array> = [];      // pcm音频数据搜集器(左声道)
+    private rBuffer: Array<Float32Array> = [];      // pcm音频数据搜集器(右声道)
+    private PCM: any;                               // 最终的PCM数据缓存，避免多次encode
+    private tempPCM: Array<DataView> = [];          // 边录边转时临时存放pcm的
     private audioInput: any;
-    protected inputSampleRate: number;            // 输入采样率
-    protected inputSampleBits: number = 16;       // 输入采样位数
-    protected outputSampleRate: number;           // 输出采样率
-    protected oututSampleBits: number;            // 输出采样位数
-    private source: any;                        // 音频输入
+    protected inputSampleRate: number;              // 输入采样率
+    protected inputSampleBits: number = 16;         // 输入采样位数
+    protected outputSampleRate: number;             // 输出采样率
+    protected oututSampleBits: number;              // 输出采样位数
+    private source: any;                            // 音频输入
     private recorder: any;
-    private stream: any;                        // 流
-    protected littleEdian: boolean;               // 是否是小端字节序
-
-    protected fileSize: number = 0;                // 录音大小，byte为单位
-    protected duration: number = 0;                    // 录音时长
+    private stream: any;                            // 流
+    protected littleEdian: boolean;                 // 是否是小端字节序
+    protected fileSize: number = 0;                 // 录音大小，byte为单位
+    protected duration: number = 0;                 // 录音时长
     // 正在录音时间，参数是已经录了多少时间了
     public onprocess: (duration: number) => void;
     // onprocess 替代函数，保持原来的 onprocess 向下兼容
@@ -45,7 +40,7 @@ export default class Recorder {
         duration: number,
         fileSize: number,
         vol: number,
-        data: Array<DataView>,      // 当前存储的所有录音数据
+        // data: Array<DataView>,      // 当前存储的所有录音数据
     }) => void;
     public onplay: () => void;                  // 音频播放回调
     public onpauseplay: () => void;             // 音频暂停回调
@@ -64,20 +59,10 @@ export default class Recorder {
         let context = new (window.AudioContext || window.webkitAudioContext)();
 
         this.inputSampleRate = context.sampleRate;     // 获取当前输入的采样率
-        // 配置config，检查值是否有问题
-        this.config = {
-            // 采样数位 8, 16
-            sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
-            // 采样率
-            sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
-            // 声道数，1或2
-            numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
-            // 是否需要边录边转，默认关闭，后期使用web worker
-            // compiling: !!options.compiling || false,  // 先移除
-        };
-        // 设置采样的参数
-        this.outputSampleRate = this.config.sampleRate;     // 输出采样率
-        this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
+
+        // 设置输出配置
+        this.setNewOption(options);
+
         // 判断端字节序
         this.littleEdian = (function() {
             let buffer = new ArrayBuffer(2);
@@ -86,6 +71,22 @@ export default class Recorder {
         })();
         // 兼容 getUserMedia
         this.initUserMedia();
+    }
+
+    protected setNewOption(options: recorderConfig = {}) {
+        this.config = {
+            // 采样数位 8, 16
+            sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
+            // 采样率
+            sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
+            // 声道数，1或2
+            numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
+            // 是否需要边录边转，默认关闭，后期使用web worker
+            // compiling: !!options.compiling || false,   // 先移除
+        };
+        // 设置采样的参数
+        this.outputSampleRate = this.config.sampleRate;     // 输出采样率
+        this.oututSampleBits = this.config.sampleBits;      // 输出采样数位 8, 16
     }
 
     /**
@@ -175,6 +176,7 @@ export default class Recorder {
         return dataArray;
     }
 
+    // 获取录音数据
     getData() {
         let data: any = this.flat();
 
@@ -303,7 +305,7 @@ export default class Recorder {
                 duration: this.duration,
                 fileSize: this.fileSize,
                 vol,
-                data: this.tempPCM,     // 当前所有的pcm数据，调用者控制增量
+                // data: this.tempPCM,     // 当前所有的pcm数据，调用者控制增量
             });
         }
     }

@@ -19,14 +19,14 @@ recorder.onprocess = function(duration) {
 + 录音时长（duration）。
 + 录音大小（fileSize）。
 + 录音音量百分比（vol）。
-+ 所有的录音数据（data）。
++ ~~所有的录音数据（data）~~。
 
 ```js
 recorder.onprogress = function(params) {
     console.log('录音时长(秒)', params.duration);
     console.log('录音大小(字节)', params.fileSize);
     console.log('录音音量百分比(%)', params.vol);
-    console.log('当前录音的总数据([DataView, DataView...])', params.data);
+    // console.log('当前录音的总数据([DataView, DataView...])', params.data);
 }
 ```
 
