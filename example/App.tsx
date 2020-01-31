@@ -122,7 +122,6 @@ class App extends React.Component {
                 }
             }
 
-
             recorder.onplay = () => {
                 console.log('%c回调监听，开始播放音频', 'color: #2196f3')
             }
@@ -322,7 +321,7 @@ class App extends React.Component {
     destroyRecord = () => {
         this.clearPlay();
         if (recorder) {
-            recorder.destroy().then(function() {
+            recorder.destroy().then(() => {
                 console.log('销毁实例');
                 recorder = null;
                 drawRecordId && cancelAnimationFrame(drawRecordId);

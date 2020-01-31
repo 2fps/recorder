@@ -243,7 +243,7 @@ Recorder.playAudio(/* 放入blob数据 */);
 支持的音乐格式由浏览器的audio支持的类型决定。
 
 ## 任务列表
-- [ ] 拆分recorder到各个功能模块。
+- [x] 拆分recorder到各个功能模块。
 - [x] 增加test代码。
 - [x] promise，支持async, await。
 - [ ] 功能完善。

@@ -62,6 +62,8 @@ declare class Recorder {
     resumePlay(): void;
     stopPlay(): void;
     getWholeData();
+
+    ccc();
     getNextData();
     getRecordAnalyseData();
     getPlayAnalyseData();

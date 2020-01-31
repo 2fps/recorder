@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, Segment, Dimmer, Loader, Tab } from 'semantic-ui-react';
-import Recorder from '../../../../src/recorder';
+import Recorder from '../../../../src/index';
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -88,7 +88,7 @@ class Translate extends React.Component {
     sendVoice = (data) => {
         let formData = new FormData();
         formData.append('a', data);
-    
+
         // fetch(`http://127.0.0.1:3000/gen/voice?platform=${ this.state.platform }`, {
         fetch(`https://recorder.zhuyuntao.cn/gen/voice?platform=${ this.state.platform }`, {
             method: 'POST',
