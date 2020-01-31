@@ -146,10 +146,12 @@ recorder.downloadPCM(fileName ?);
 
 **注：使用该方法会默认调用 stop() 方法。**
 
-### 录音中，获取录音数据
+### ~~录音中，获取录音数据~~
+**(0.x版本中生效，最新目前不支持)**
+
 该方式为边录边转换，建议在 compiling 为 true 时使用。
 
-#### getWholeData()
+#### ~~getWholeData()~~
 > 获取已经录音的所有数据。若没有开启边录边转(compiling为false)，则返回是空数组。
 
 + 返回: Array, 数组中是DataView数据
@@ -161,7 +163,7 @@ setInterval(() => {
 }, 1000)
 ```
 
-#### getNextData()
+#### ~~getNextData()~~
 > 获取前一次 getNextData() 之后的数据。若没有开启边录边转(compiling为false)，则返回是空数组。
 
 + 返回: Array, 数组中是DataView数据
@@ -176,10 +178,17 @@ setInterval(() => {
 
 ### 录音波形显示
 #### getRecordAnalyseData()
-> 返回的是一个1024长的，0-255大小的Uint8Array类型。用户可以根据这些数据自定义录音波形。
+> 返回的是一个1024长的，0-255大小的Uint8Array类型。用户可以根据这些数据自定义录音波形。此接口获取的是录音时的。
 
 ``` js
 let dataArray = recorder.getRecordAnalyseData();
+```
+
+#### getPlayAnalyseData()
+> 返回数据同 getRecordAnalyseData()，该方法获取的是播放时的。
+
+``` js
+let dataArray = recorder.getPlayAnalyseData();
 ```
 
 ### 其他音频播放
