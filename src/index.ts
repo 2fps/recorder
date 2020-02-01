@@ -161,7 +161,7 @@ class Index extends Recorder {
     }
 
     destroy(): Promise<{}> {
-        Player.stopPlay();
+        Player.destroyPlay();
 
         return this.destroyRecord();
     }

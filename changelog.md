@@ -5,14 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] 2020-02-01
 ### Removed
 + 先删除边录边播放功能。
+
+### changed
+按功能模块划分。
 
 ### Added
 + 增加 setOption 接口，用于重置 recorder 的配置。
 + 增加播放音频时的，开始音频播放(onplay)，暂停音频播放(onpauseplay)，恢复音频播放(onresumeplay)，停止音频播放(onstopplay)，音频播放结束回调(onplayend)。
 + 简单拆分文件。
-
 
 ## [0.5.4] 2019-12-23
 ### Added

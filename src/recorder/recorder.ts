@@ -131,6 +131,8 @@ export default class Recorder {
      */
     pauseRecord(): void {
         this.recorder.disconnect();
+        this.audioInput.disconnect();
+        this.analyser.disconnect();
     }
 
     /**
@@ -142,7 +144,6 @@ export default class Recorder {
         // 暂停的才可以开始
         this.audioInput && this.audioInput.connect(this.analyser);
         this.analyser.connect(this.recorder);
-        // this.audioInput.connect(this.recorder);
         // 处理节点 recorder 连接到扬声器
         this.recorder.connect(this.context.destination);
     }
@@ -155,6 +156,7 @@ export default class Recorder {
         this.audioInput && this.audioInput.disconnect();
         this.source && this.source.stop();
         this.recorder.disconnect();
+        this.analyser.disconnect();
     }
 
     /**
@@ -162,6 +164,7 @@ export default class Recorder {
      *
      */
     destroyRecord(): Promise<{}> {
+        this.clearRecordStatus();
         // 结束流
         this.stopStream();
 
@@ -257,10 +260,6 @@ export default class Recorder {
 
         // 音频采集
         this.recorder.onaudioprocess = e => {
-            // if (!this.isrecording || this.ispause) {
-            //     // 不在录音时不需要处理，FF 在停止录音后，仍会触发 audioprocess 事件
-            //     return;
-            // }
             // 左声道数据
             // getChannelData返回Float32Array类型的pcm数据
             let lData = e.inputBuffer.getChannelData(0),
@@ -279,7 +278,7 @@ export default class Recorder {
                 this.size += rData.length;
             }
 
-            // 边录边转处理
+            // 边录边转处理 暂时不支持
             // if (this.config.compiling) {
             //     let pcm = this.transformIntoPCM(lData, rData);
 

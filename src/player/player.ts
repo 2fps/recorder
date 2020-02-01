@@ -82,7 +82,7 @@ export default class Player {
      * @memberof Player
      */
     static pausePlay(): void {
-        source && source.disconnect();
+        source && source.stop();
         // 多次暂停需要累加
         playTime += context.currentTime - playStamp;
         isPaused = true;
@@ -105,6 +105,10 @@ export default class Player {
         audioData = null;
 
         source && source.stop();
+    }
+
+    static destroyPlay() {
+        this.stopPlay();
     }
 
     static getAnalyseData() {

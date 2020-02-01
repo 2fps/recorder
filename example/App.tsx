@@ -265,11 +265,14 @@ class App extends React.Component {
         if (recorder) {
             recorder.pause();
             console.log('暂停录音');
+            drawRecordId && cancelAnimationFrame(drawRecordId);
+            drawRecordId = null;
         }
     }
     resumeRecord = () => {
         recorder && recorder.resume();
         console.log('恢复录音');
+        this.drawRecord();
     }
     endRecord = () => {
         recorder && recorder.stop();
