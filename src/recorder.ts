@@ -90,7 +90,7 @@ class Recorder {
             return new Int16Array(buffer)[0] === 256;
         })();
         // 兼容 getUserMedia
-        this.initUserMedia();
+        Recorder.initUserMedia();
     }
 
     /** 
@@ -407,27 +407,6 @@ class Recorder {
     getPlayAnalyseData() {
         // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
         return this.getRecordAnalyseData();
-    }
-    
-    // getUserMedia 版本兼容
-    private initUserMedia() {
-        if (navigator.mediaDevices === undefined) {
-            navigator.mediaDevices = {};
-        }
-        
-        if (navigator.mediaDevices.getUserMedia === undefined) {
-            navigator.mediaDevices.getUserMedia = function(constraints) {
-                let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-                
-                if (!getUserMedia) {
-                    return Promise.reject(new Error('浏览器不支持 getUserMedia !'));
-                }
-                
-                return new Promise(function(resolve, reject) {
-                    getUserMedia.call(navigator, constraints, resolve, reject);
-                });
-            }
-        }
     }
 
     /**
@@ -842,6 +821,42 @@ class Recorder {
      */
     static throwError(message: string) {
         throw new Error (message);
+    }
+
+    // getUserMedia 版本兼容
+    static initUserMedia() {
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
+        }
+        
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function(constraints) {
+                let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('浏览器不支持 getUserMedia !'));
+                }
+                
+                return new Promise(function(resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
+            }
+        }
+    }
+
+    /**
+     * 在没有权限的时候，让弹出获取麦克风弹窗
+     *
+     * @static
+     * @returns {Promise<{}>}
+     * @memberof Recorder
+     */
+    static getPermission(): Promise<{}> {
+        this.initUserMedia();
+
+        return navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
+            stream.getTracks().forEach(track => track.stop());
+        });
     }
 }
 

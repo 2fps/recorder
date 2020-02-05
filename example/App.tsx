@@ -36,6 +36,12 @@ setInterval(() => {
     recorder && recorder.getPlayTime() && console.log('已经播放了:', recorder.getPlayTime());
 }, 300)
 
+// Recorder.getPermission().then(() => {
+//     console.log('给权限了');
+// }, (error) => {
+//     console.log(`${error.name} : ${error.message}`);
+// });
+
 class App extends React.Component {
     state = {
         sampleBit: 8,

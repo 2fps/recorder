@@ -190,3 +190,22 @@ let dataArray = recorder.getRecordAnalyseData();
 ``` js
 Recorder.playAudio(/* 放入blob数据 */);
 ```
+
+## 其他
+### 录音权限
+未给予录音权限的页面在开始录音时需要再次点击允许录音，才能真正地录音，存在丢失开始这一段录音的情况，增加方法以便用户提前获取麦克风权限。
+
+#### getPermission()
+> 获取麦克风权限。
+
++ 返回：promise。
+
+```js
+Recorder.getPermission().then(() => {
+    console.log('给权限了');
+}, (error) => {
+    console.log(`${error.name} : ${error.message}`);
+});
+```
+
+此处`then`回调与`start`的一致。

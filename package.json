@@ -1,6 +1,6 @@
 {
   "name": "js-audio-recorder",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "js audio recorder plugin",
   "main": "./index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "https": "webpack-dev-server --https --open --watch --inline --mode=development --host --config webpack.dev.js",
     "build": "webpack --mode=production",
     "test": "jest",
-    "gitbook:start": "gitbook serve ./site",
+    "gitbook": "gitbook serve ./site",
     "gitbook:build": "gitbook build ./site",
     "gitbook:install": "gitbook install ./site"
   },
