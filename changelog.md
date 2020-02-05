@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] 2020-02-05
+### Added
++ 增加 getPermission 静态方法提前让用户获取浏览器的录音权限[issues 23中新增问题](https://github.com/2fps/recorder/issues/23)。
+
 ## [1.0.0] 2020-02-01
 ### Removed
 + 先删除边录边播放功能。

@@ -70,7 +70,7 @@ export default class Recorder {
             return new Int16Array(buffer)[0] === 256;
         })();
         // 兼容 getUserMedia
-        this.initUserMedia();
+        Recorder.initUserMedia();
     }
 
     protected setNewOption(options: recorderConfig = {}) {
@@ -336,7 +336,7 @@ export default class Recorder {
     }
 
     // getUserMedia 版本兼容
-    private initUserMedia() {
+    static initUserMedia() {
         if (navigator.mediaDevices === undefined) {
             navigator.mediaDevices = {};
         }
@@ -373,5 +373,13 @@ export default class Recorder {
         }, this.inputSampleRate, this.outputSampleRate);
 
         return encodePCM(data, this.oututSampleBits, this.littleEdian);
+    }
+
+    static getPermission(): Promise<{}> {
+        this.initUserMedia();
+
+        return navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
+            stream.getTracks().forEach(track => track.stop());
+        });
     }
 }
