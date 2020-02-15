@@ -57,6 +57,14 @@ function playAudio(): Promise<{}> {
     });
 }
 
+// 销毁source, 由于 decodeAudioData 产生的source每次停止后就不能使用，所以暂停也意味着销毁，下次需重新启动。
+function destroySource() {
+    if (source) {
+        source.stop();
+        source = null;
+    }
+}
+
 export default class Player {
     /**
      * play record
@@ -82,7 +90,7 @@ export default class Player {
      * @memberof Player
      */
     static pausePlay(): void {
-        source && source.stop();
+        destroySource();
         // 多次暂停需要累加
         playTime += context.currentTime - playStamp;
         isPaused = true;
@@ -104,7 +112,7 @@ export default class Player {
         playTime = 0;
         audioData = null;
 
-        source && source.stop();
+        destroySource();
     }
 
     static destroyPlay() {
