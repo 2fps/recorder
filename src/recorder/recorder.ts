@@ -326,7 +326,7 @@ export default class Recorder {
      * 如firefox 30 等低版本浏览器没有 close方法
      */
     private closeAudioContext() {
-        if (this.context.close && this.context.state !== 'closed') {
+        if (this.context && this.context.close && this.context.state !== 'closed') {
             return this.context.close();
         } else {
             return new Promise((resolve) => {

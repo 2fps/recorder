@@ -87,9 +87,11 @@ class Index extends Recorder {
      * @memberof Recorder
      */
     stop(): void {
-        this.isrecording = false;
-        this.ispause = false;
-        this.stopRecord();
+        if (this.isrecording) {
+            this.isrecording = false;
+            this.ispause = false;
+            this.stopRecord();
+        }
     }
 
     /**
@@ -100,9 +102,14 @@ class Index extends Recorder {
         // 关闭前一次音频播放
         this.isplaying = true;
 
-        this.onplay();
+        this.onplay && this.onplay();
         Player.addPlayEnd(this.onplayend);  // 注册播放完成后的回调事件
-        Player.play(this.getWAV().buffer);  // 播放
+
+        const dataV = this.getWAV();
+
+        if (dataV.byteLength > 44) {
+            Player.play(this.getWAV().buffer);  // 播放
+        }
     }
 
     /**
@@ -140,7 +147,7 @@ class Index extends Recorder {
         }
 
         this.isplaying = true;
-        this.onresumeplay();
+        this.onresumeplay && this.onresumeplay();
         Player.resumePlay();
     }
 
