@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6] 2020-02-18
+### Fixed
++ 处理[issues 32](https://github.com/2fps/recorder/issues/32)中的衍生问题，safari下，disconnect后再次connect的bug。
++ 处理[issues 31](https://github.com/2fps/recorder/issues/31)。
+
 ## [0.5.5] 2020-02-05
 增加 getPermission 静态方法提前让用户获取浏览器的录音权限[issues 23中新增问题](https://github.com/2fps/recorder/issues/23)。
 

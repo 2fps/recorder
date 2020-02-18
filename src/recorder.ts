@@ -210,8 +210,6 @@ class Recorder {
     pause(): void {
         if (this.isrecording && !this.ispause) {
             this.ispause = true;
-            // 当前不暂停的时候才可以暂停
-            this.recorder.disconnect();
         }
     }
 
@@ -223,11 +221,6 @@ class Recorder {
     resume(): void {
         if (this.isrecording && this.ispause) {
             this.ispause = false;
-            // 暂停的才可以开始
-            this.audioInput && this.audioInput.connect(this.analyser);
-            this.analyser.connect(this.recorder);
-            // 处理节点 recorder 连接到扬声器
-            this.recorder.connect(this.context.destination);
         }
     }
 
@@ -556,7 +549,7 @@ class Recorder {
      * 如firefox 30 等低版本浏览器没有 close方法
      */
     private closeAudioContext() {
-        if (this.context.close) {
+        if (this.context && this.context.close && this.context.state !== 'closed') {
             return this.context.close();
         } else {
             return new Promise((resolve) => {
