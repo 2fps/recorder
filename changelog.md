@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.3] 2020-02-18
 ### Fixed
 + 处理[issues 32](https://github.com/2fps/recorder/issues/32)中的衍生问题，safari下，disconnect后再次connect的bug。
 + 处理[issues 31](https://github.com/2fps/recorder/issues/31)。
