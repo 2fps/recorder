@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
++ 处理[issues 32](https://github.com/2fps/recorder/issues/32)中的衍生问题，safari下，disconnect后再次connect的bug。
 + 处理[issues 31](https://github.com/2fps/recorder/issues/31)。
 
 ## [1.0.2] 2020-02-15

@@ -108,7 +108,7 @@ class Index extends Recorder {
         const dataV = this.getWAV();
 
         if (dataV.byteLength > 44) {
-            Player.play(this.getWAV().buffer);  // 播放
+            Player.play(dataV.buffer);  // 播放
         }
     }
 

@@ -33,6 +33,7 @@ export default class Recorder {
     protected littleEdian: boolean;                 // 是否是小端字节序
     protected fileSize: number = 0;                 // 录音大小，byte为单位
     protected duration: number = 0;                 // 录音时长
+    private needRecord: boolean = true;             // 由于safari问题，导致使用该方案代替disconnect/connect方案
     // 正在录音时间，参数是已经录了多少时间了
     public onprocess: (duration: number) => void;
     // onprocess 替代函数，保持原来的 onprocess 向下兼容
@@ -130,9 +131,7 @@ export default class Recorder {
      * @memberof Recorder
      */
     pauseRecord(): void {
-        this.recorder.disconnect();
-        this.audioInput.disconnect();
-        this.analyser.disconnect();
+        this.needRecord = false;
     }
 
     /**
@@ -141,11 +140,7 @@ export default class Recorder {
      * @memberof Recorder
      */
     resumeRecord(): void {
-        // 暂停的才可以开始
-        this.audioInput && this.audioInput.connect(this.analyser);
-        this.analyser.connect(this.recorder);
-        // 处理节点 recorder 连接到扬声器
-        this.recorder.connect(this.context.destination);
+        this.needRecord = true;
     }
 
     /**
@@ -260,6 +255,9 @@ export default class Recorder {
 
         // 音频采集
         this.recorder.onaudioprocess = e => {
+            if (!this.needRecord) {
+                return;
+            }
             // 左声道数据
             // getChannelData返回Float32Array类型的pcm数据
             let lData = e.inputBuffer.getChannelData(0),
