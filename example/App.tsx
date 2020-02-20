@@ -1,13 +1,17 @@
 import * as React from 'react';
 import { Button, Container, Statistic, Form, Divider, Checkbox, Segment } from 'semantic-ui-react';
-// import Recorder from './recorder';
+
 import Recorder from '../src/index';
+const lamejs = require('lamejs')
+
 import { encodeWAV } from '../src/transform/transform';
 import Player from '../src/player/player';
 
 import Translate from './components/Application/Translate/Translate';
 
 import 'semantic-ui-css/semantic.min.css';
+
+console.log(lamejs)
 
 let recorder = null;
 let playTimer = null;
@@ -351,6 +355,20 @@ class App extends React.Component {
         }
     }
 
+    transToMp3 = () => {
+        const mp3Blob = convertWavToMp3(recorder.getWAV());
+        const reader = new FileReader();
+
+        reader.onload = function() {
+            Player.play(this.result);
+        }
+
+        reader.readAsArrayBuffer(mp3Blob)
+
+        console.log(mp3Blob);
+        // debugger
+    }
+
     uploadAudio = (e) => {
         e.target.files[0].arrayBuffer().then((arraybuffer) => {
             Player.play(arraybuffer);
@@ -464,6 +482,9 @@ class App extends React.Component {
                     <Button onClick={ this.downloadWAV } secondary>
                         下载WAV
                     </Button>
+                    <Button onClick={ this.transToMp3 } secondary>
+                        借助lamejs转MP3
+                    </Button>
                 </div>
                 <Divider />
                 <div style={{ position: 'relative' }}>
@@ -479,6 +500,38 @@ class App extends React.Component {
             </Container>
         );
     }
+}
+
+// https://github.com/2fps/recorder/issues/33 支持mp3
+function convertWavToMp3(wavDataView) {
+    const wav = lamejs.WavHeader.readHeader(wavDataView);
+    const samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
+    const { channels, sampleRate } = wav;
+    // console.log(wav);
+    // debugger
+    const buffer = [];
+    // if (channels === 2) {
+
+    // }
+    const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
+    let remaining = samples.length;
+    const maxSamples = 1152;
+    for (let i = 0; remaining >= maxSamples; i += maxSamples) {
+        const mono = samples.subarray(i, i + maxSamples);
+        // const mono = samples.subarray(i, i + maxSamples);
+        const mp3buf = mp3enc.encodeBuffer(mono);
+        if (mp3buf.length > 0) {
+            buffer.push(new Int8Array(mp3buf));
+        }
+        remaining -= maxSamples;
+    }
+    const d = mp3enc.flush();
+    if (d.length > 0) {
+        buffer.push(new Int8Array(d));
+    }
+
+
+    return new Blob(buffer, { type: 'audio/mp3' });
 }
 
 export default App;
