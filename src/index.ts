@@ -131,7 +131,7 @@ class Index extends Recorder {
         }
 
         this.isplaying = false;
-        this.onpauseplay();
+        this.onpauseplay && this.onpauseplay();
         Player.pausePlay();
     }
 
@@ -163,7 +163,7 @@ class Index extends Recorder {
         }
 
         this.isplaying = false;
-        this.onstopplay();
+        this.onstopplay && this.onstopplay();
         Player.stopPlay();
     }
 
