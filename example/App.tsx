@@ -145,6 +145,7 @@ class App extends React.Component {
                 console.log('%c回调监听，停止播放音频', 'color: #2196f3')
             }
             recorder.onplayend = () => {
+                console.log('%c回调监听，音频已经完成播放', 'color: #2196f3')
                 // 播放结束后，停止绘制canavs
                 this.stopDrawPlay();
             }

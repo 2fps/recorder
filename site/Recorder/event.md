@@ -30,3 +30,53 @@ recorder.onprogress = function(params) {
 }
 ```
 
+## onplay
+
+> 录音播放开始回调。
+
+```js
+recorder.onplay = () => {
+    console.log('onplay')
+}
+```
+
+## onpauseplay
+
+> 录音播放暂停回调。
+
+```js
+recorder.onpauseplay = () => {
+    console.log('onpauseplay')
+}
+```
+
+## onresumeplay
+
+> 录音播放恢复回调。
+
+```js
+recorder.onresumeplay = () => {
+    console.log('onresumeplay')
+}
+```
+
+## onstopplay
+
+> 录音播放停止回调。
+
+```js
+recorder.onstopplay = () => {
+    console.log('onstopplay')
+}
+```
+
+## onplayend
+
+> 录音播放完成回调。
+
+```js
+recorder.onplayend = () => {
+    console.log('onplayend')
+}
+```
+
