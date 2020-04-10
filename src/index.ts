@@ -218,6 +218,10 @@ class Index extends Recorder {
         return Player.getAnalyseData();
     }
 
+    getChannelData() {
+        return this.getData();
+    }
+
     getPCM() {
         // 先停止
         this.stop();

@@ -53,9 +53,9 @@ const numChannelOptions = [
 
 class App extends React.Component {
     state = {
-        sampleBit: 8,
-        sampleRate: 16000,
-        numChannel: 1,
+        sampleBit: 16,
+        sampleRate: 44100,
+        numChannel: 2,
         compiling: false,
         isRecording: false,     // 是否正在录音
         duration: 0,
@@ -506,33 +506,104 @@ class App extends React.Component {
 // https://github.com/2fps/recorder/issues/33 支持mp3
 function convertWavToMp3(wavDataView) {
     const wav = lamejs.WavHeader.readHeader(wavDataView);
-    const samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
+    // let samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
     const { channels, sampleRate } = wav;
-    // console.log(wav);
-    // debugger
     const buffer = [];
-    // if (channels === 2) {
+    let leftData;
+    let rightData;
 
-    // }
-    const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
-    let remaining = samples.length;
-    const maxSamples = 1152;
-    for (let i = 0; remaining >= maxSamples; i += maxSamples) {
-        const mono = samples.subarray(i, i + maxSamples);
-        // const mono = samples.subarray(i, i + maxSamples);
-        const mp3buf = mp3enc.encodeBuffer(mono);
-        if (mp3buf.length > 0) {
-            buffer.push(new Int8Array(mp3buf));
+    if (channels === 2) {
+        const lD = new DataView(new ArrayBuffer(wav.dataLen))
+        const rD = new DataView(new ArrayBuffer(wav.dataLen))
+        // 双声道，需要拆分下数据
+            console.log(wavDataView.byteLength)
+            debugger
+        for (var i = wav.dataOffset; i < (wavDataView.byteLength - 44)/2; i += 2) {
+            // console.log(wav.dataOffset + i * 2, wav.dataOffset + i * 2 + 2)
+            lD.setInt16(i, wavDataView.getInt16(wav.dataOffset + i * 2, true), true)
+            rD.setInt16(i, wavDataView.getInt16(wav.dataOffset + i * 2 + 2, true), true)
+
         }
-        remaining -= maxSamples;
+
+        console.log(wav.dataOffset + i * 2, wav.dataOffset + i * 2 + 2)
+
+        leftData = new Int16Array(lD.buffer, 0, wav.dataLen / 4);
+        rightData = new Int16Array(rD.buffer, 0, wav.dataLen / 4);
+    } else {
+        leftData = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
+    }
+
+    const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
+    let remaining = leftData.length //+ rightData && rightData.length || 0;
+    const maxSamples = 1152;
+
+    for (let i = 0; i < remaining * 1; i += maxSamples) {
+        const left = leftData.subarray(i, i + maxSamples);
+        let right = null;
+        let mp3buf = null;
+        // const right = samples.subarray(i, i + maxSamples);
+        if (channels === 2) {
+            right = rightData.subarray(i, i + maxSamples);
+            mp3buf = mp3enc.encodeBuffer(left, right);
+        } else {
+            mp3buf = mp3enc.encodeBuffer(left);
+        }
+        if (mp3buf.length > 0) {
+            buffer.push(mp3buf);
+        }
+        // remaining -= maxSamples;
     }
     const d = mp3enc.flush();
     if (d.length > 0) {
-        buffer.push(new Int8Array(d));
+        buffer.push(d);
     }
 
 
     return new Blob(buffer, { type: 'audio/mp3' });
 }
+
+
+// function convertWavToMp3(wavDataView) {
+//     debugger
+//     const wav = lamejs.WavHeader.readHeader(wavDataView);
+//     let samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
+//     const { channels, sampleRate } = wav;
+//     console.log(wav);
+//     console.log(recorder.getChannelData())
+//     // debugger
+//     const buffer = [];
+//     let rightSamples:any = null;
+//     if (channels === 2) {
+//         const { left, right } = recorder.getChannelData()
+//         samples = new Int16Array(left.buffer, 0, left.length * 2);
+//         rightSamples = new Int16Array(right.buffer, 0, right.length * 2);
+//     }
+//     const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
+//     let remaining = samples.length;
+//     const maxSamples = 1152;
+//     for (let i = 0; i < remaining; i += maxSamples) {
+//         const left = samples.subarray(i, i + maxSamples);
+//         let right = null;
+//         let mp3buf = null;
+//         // const right = samples.subarray(i, i + maxSamples);
+//         if (channels === 2) {
+//             right = rightSamples.subarray(i, i + maxSamples);
+//             mp3buf = mp3enc.encodeBuffer(left, right);
+//         } else {
+//             mp3buf = mp3enc.encodeBuffer(left);
+//         }
+//         if (mp3buf.length > 0) {
+//             buffer.push(mp3buf);
+//         }
+//         // remaining -= maxSamples;
+//     }
+//     const d = mp3enc.flush();
+//     if (d.length > 0) {
+//         buffer.push(new Int8Array(d));
+//     }
+
+
+//     return new Blob(buffer, { type: 'audio/mp3' });
+// }
 
 export default App;
