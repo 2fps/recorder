@@ -11,8 +11,6 @@ import Translate from './components/Application/Translate/Translate';
 
 import 'semantic-ui-css/semantic.min.css';
 
-console.log(lamejs)
-
 let recorder = null;
 let playTimer = null;
 let oCanvas = null;
@@ -54,8 +52,8 @@ const numChannelOptions = [
 class App extends React.Component {
     state = {
         sampleBit: 16,
-        sampleRate: 44100,
-        numChannel: 2,
+        sampleRate: 16000,
+        numChannel: 1,
         compiling: false,
         isRecording: false,     // 是否正在录音
         duration: 0,
@@ -356,18 +354,27 @@ class App extends React.Component {
         }
     }
 
-    transToMp3 = () => {
-        const mp3Blob = convertWavToMp3(recorder.getWAV());
-        const reader = new FileReader();
+    playMP3 = () => {
+        if (recorder) {
+            const mp3Blob = convertToMp3(recorder.getWAV());
+            const reader = new FileReader();
 
-        reader.onload = function() {
-            Player.play(this.result);
+            reader.onload = function() {
+                Player.play(this.result);
+            }
+
+            reader.readAsArrayBuffer(mp3Blob)
+
+            console.log(mp3Blob);
         }
+    }
 
-        reader.readAsArrayBuffer(mp3Blob)
+    downloadMP3 = () => {
+        if (recorder) {
+            const mp3Blob = convertToMp3(recorder.getWAV());
 
-        console.log(mp3Blob);
-        // debugger
+            recorder.download(mp3Blob, 'recorder', 'mp3');
+        }
     }
 
     uploadAudio = (e) => {
@@ -483,8 +490,16 @@ class App extends React.Component {
                     <Button onClick={ this.downloadWAV } secondary>
                         下载WAV
                     </Button>
-                    <Button onClick={ this.transToMp3 } secondary>
-                        借助lamejs转MP3
+                </div>
+                <Divider />
+                <div>
+                    <h3>其他音频格式</h3>
+                    <h4>MP3</h4>
+                    <Button onClick={ this.playMP3 } secondary>
+                        播放MP3
+                    </Button>
+                    <Button onClick={ this.downloadMP3 } secondary>
+                        下载MP3
                     </Button>
                 </div>
                 <Divider />
@@ -504,106 +519,45 @@ class App extends React.Component {
 }
 
 // https://github.com/2fps/recorder/issues/33 支持mp3
-function convertWavToMp3(wavDataView) {
-    const wav = lamejs.WavHeader.readHeader(wavDataView);
-    // let samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
+// 请用 16位的采样位数
+function convertToMp3(wavDataView) {
+    // 获取wav头信息
+    const wav = lamejs.WavHeader.readHeader(wavDataView); // 此处其实可以不用去读wav头信息，毕竟有对应的config配置
     const { channels, sampleRate } = wav;
-    const buffer = [];
-    let leftData;
-    let rightData;
-
-    if (channels === 2) {
-        const lD = new DataView(new ArrayBuffer(wav.dataLen))
-        const rD = new DataView(new ArrayBuffer(wav.dataLen))
-        // 双声道，需要拆分下数据
-            console.log(wavDataView.byteLength)
-            debugger
-        for (var i = wav.dataOffset; i < (wavDataView.byteLength - 44)/2; i += 2) {
-            // console.log(wav.dataOffset + i * 2, wav.dataOffset + i * 2 + 2)
-            lD.setInt16(i, wavDataView.getInt16(wav.dataOffset + i * 2, true), true)
-            rD.setInt16(i, wavDataView.getInt16(wav.dataOffset + i * 2 + 2, true), true)
-
-        }
-
-        console.log(wav.dataOffset + i * 2, wav.dataOffset + i * 2 + 2)
-
-        leftData = new Int16Array(lD.buffer, 0, wav.dataLen / 4);
-        rightData = new Int16Array(rD.buffer, 0, wav.dataLen / 4);
-    } else {
-        leftData = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
-    }
-
     const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
-    let remaining = leftData.length //+ rightData && rightData.length || 0;
-    const maxSamples = 1152;
+    // 获取左右通道数据
+    const result = recorder.getChannelData()
+    const buffer = [];
 
-    for (let i = 0; i < remaining * 1; i += maxSamples) {
+    const leftData = result.left && new Int16Array(result.left.buffer, 0, result.left.byteLength / 2);
+    const rightData = result.right && new Int16Array(result.right.buffer, 0, result.right.byteLength / 2);
+    const remaining = leftData.length + (rightData ? rightData.length : 0);
+
+    const maxSamples = 1152;
+    for (let i = 0; i < remaining; i += maxSamples) {
         const left = leftData.subarray(i, i + maxSamples);
         let right = null;
         let mp3buf = null;
-        // const right = samples.subarray(i, i + maxSamples);
+
         if (channels === 2) {
             right = rightData.subarray(i, i + maxSamples);
             mp3buf = mp3enc.encodeBuffer(left, right);
         } else {
             mp3buf = mp3enc.encodeBuffer(left);
         }
+
         if (mp3buf.length > 0) {
             buffer.push(mp3buf);
         }
-        // remaining -= maxSamples;
-    }
-    const d = mp3enc.flush();
-    if (d.length > 0) {
-        buffer.push(d);
     }
 
+    const enc = mp3enc.flush();
+
+    if (enc.length > 0) {
+        buffer.push(enc);
+    }
 
     return new Blob(buffer, { type: 'audio/mp3' });
 }
-
-
-// function convertWavToMp3(wavDataView) {
-//     debugger
-//     const wav = lamejs.WavHeader.readHeader(wavDataView);
-//     let samples = new Int16Array(wavDataView.buffer, wav.dataOffset, wav.dataLen / 2);
-//     const { channels, sampleRate } = wav;
-//     console.log(wav);
-//     console.log(recorder.getChannelData())
-//     // debugger
-//     const buffer = [];
-//     let rightSamples:any = null;
-//     if (channels === 2) {
-//         const { left, right } = recorder.getChannelData()
-//         samples = new Int16Array(left.buffer, 0, left.length * 2);
-//         rightSamples = new Int16Array(right.buffer, 0, right.length * 2);
-//     }
-//     const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
-//     let remaining = samples.length;
-//     const maxSamples = 1152;
-//     for (let i = 0; i < remaining; i += maxSamples) {
-//         const left = samples.subarray(i, i + maxSamples);
-//         let right = null;
-//         let mp3buf = null;
-//         // const right = samples.subarray(i, i + maxSamples);
-//         if (channels === 2) {
-//             right = rightSamples.subarray(i, i + maxSamples);
-//             mp3buf = mp3enc.encodeBuffer(left, right);
-//         } else {
-//             mp3buf = mp3enc.encodeBuffer(left);
-//         }
-//         if (mp3buf.length > 0) {
-//             buffer.push(mp3buf);
-//         }
-//         // remaining -= maxSamples;
-//     }
-//     const d = mp3enc.flush();
-//     if (d.length > 0) {
-//         buffer.push(new Int8Array(d));
-//     }
-
-
-//     return new Blob(buffer, { type: 'audio/mp3' });
-// }
 
 export default App;

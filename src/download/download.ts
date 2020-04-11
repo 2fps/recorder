@@ -5,7 +5,7 @@
  * @param {string} name 下载的文件名
  * @param {string} type 下载的文件后缀
  */
-function download(blob, name: string, type: string): void {
+function _download(blob, name: string, type: string): void {
     let oA = document.createElement('a');
 
     oA.href = window.URL.createObjectURL(blob);
@@ -20,7 +20,7 @@ function download(blob, name: string, type: string): void {
  * @param {string} [name='recorder']    重命名的名字
  */
 export function downloadWAV(wavblob, name: string = 'recorder'): void {
-    download(wavblob, name, 'wav');
+    _download(wavblob, name, 'wav');
 }
 
 /**
@@ -31,5 +31,10 @@ export function downloadWAV(wavblob, name: string = 'recorder'): void {
  * @memberof Recorder
  */
 export function downloadPCM(pcmBlob, name: string = 'recorder'): void {
-    download(pcmBlob, name, 'pcm');
+    _download(pcmBlob, name, 'pcm');
+}
+
+// 通用下载接口
+export function download(blob, name: string, type: string) {
+    return _download(blob, name, type)
 }

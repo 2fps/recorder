@@ -1,4 +1,4 @@
-import { downloadPCM, downloadWAV } from './download/download';
+import { downloadPCM, downloadWAV, download } from './download/download';
 import { compress, encodePCM, encodeWAV } from './transform/transform';
 import Player from './player/player';
 import Recorder from './recorder/recorder';
@@ -218,10 +218,6 @@ class Index extends Recorder {
         return Player.getAnalyseData();
     }
 
-    getChannelData() {
-        return this.getData();
-    }
-
     getPCM() {
         // 先停止
         this.stop();
@@ -289,6 +285,52 @@ class Index extends Recorder {
         let wavBlob = this.getWAVBlob();
 
         downloadWAV(wavBlob, name);
+    }
+
+    /**
+     * 通用的下载接口
+     */
+    download(blob, name: string, type: string) {
+        download(blob, name, type);
+    }
+
+    /**
+     * 获取左和右声道的数据
+     *
+     * @returns [DataView]
+     */
+    getChannelData() {
+        const all = this.getPCM();
+        const length = all.byteLength;
+        const littleEdian = this.littleEdian
+        const res = { left: null, right: null }
+
+        if (this.config.numChannels === 2) {
+            // 双通道,劈开
+            const lD = new DataView(new ArrayBuffer(length / 2))
+            const rD = new DataView(new ArrayBuffer(length / 2))
+            // 双声道，需要拆分下数据
+
+            if (this.config.sampleBits === 16) {
+                for (var i = 0; i < length / 2; i += 2) {
+                    lD.setInt16(i, all.getInt16(i * 2, littleEdian), littleEdian)
+                    rD.setInt16(i, all.getInt16(i * 2 + 2, littleEdian), littleEdian)
+                }
+            } else {
+                for (var i = 0; i < length / 2; i += 2) {
+                    lD.setInt8(i, all.getInt8(i * 2))
+                    rD.setInt8(i, all.getInt8(i * 2 + 1))
+                }
+            }
+
+            res.left = lD
+            res.right = rD
+        } else {
+            // 单通道
+            res.left = all
+        }
+
+        return res
     }
 }
 
