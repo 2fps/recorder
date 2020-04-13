@@ -11,6 +11,8 @@ import Translate from './components/Application/Translate/Translate';
 
 import 'semantic-ui-css/semantic.min.css';
 
+declare let OggVorbisEncoder: any;
+
 let recorder = null;
 let playTimer = null;
 let oCanvas = null;
@@ -377,6 +379,23 @@ class App extends React.Component {
         }
     }
 
+    // playOGG = () => {
+    //     if (recorder) {
+    //         const mp3Blob = convertToMp3(recorder.getWAV());
+    //         const oggBlob = convertToOgg(mp3Blob);
+    //         const reader = new FileReader();
+
+    //         reader.onload = function() {
+    //             Player.play(this.result);
+    //         }
+
+    //         reader.readAsArrayBuffer(oggBlob)
+    //         console.log(oggBlob)
+    //         // recorder.download(oggBlob, 'recorder', 'ogg');
+    //     }
+    // }
+    // downloadOGG = () => {}
+
     uploadAudio = (e) => {
         e.target.files[0].arrayBuffer().then((arraybuffer) => {
             Player.play(arraybuffer);
@@ -501,6 +520,14 @@ class App extends React.Component {
                     <Button onClick={ this.downloadMP3 } secondary>
                         下载MP3
                     </Button>
+
+                    {/* <h4>OGG</h4>
+                    <Button onClick={ this.playOGG } secondary>
+                        播放OGG
+                    </Button>
+                    <Button onClick={ this.downloadOGG } secondary>
+                        下载OGG
+                    </Button> */}
                 </div>
                 <Divider />
                 <div style={{ position: 'relative' }}>
@@ -559,5 +586,18 @@ function convertToMp3(wavDataView) {
 
     return new Blob(buffer, { type: 'audio/mp3' });
 }
+
+// function convertToOgg(mp3Blob) {
+//     // var encoder = new OggVorbisEncoder(16000, 1)
+
+//     const result = recorder.getChannelData()
+//     // const leftData = new Float32Array(result.left.buffer, 0, result.left.byteLength / 4)
+//     // // const rightData = new Float32Array(result.right.buffer, 0, result.right.byteLength / 4)
+//     // encoder.encode([leftData])
+
+//     // const blob = encoder.finish()
+
+//     // return blob
+// }
 
 export default App;
