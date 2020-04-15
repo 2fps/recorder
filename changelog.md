@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.7] 2020-04-15
+### Added
++ 增加8000采样率支持。
+
 ## [0.5.6] 2020-02-18
 ### Fixed
 + 处理[issues 32](https://github.com/2fps/recorder/issues/32)中的衍生问题，safari下，disconnect后再次connect的bug。

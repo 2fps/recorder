@@ -14,6 +14,7 @@ let ctx = null;
 let drawRecordId = null;
 
 const sampleRateOptions = [
+    { text: '8000', value: 8000 },
     { text: '16000', value: 16000 },
     { text: '22050', value: 22050 },
     { text: '24000', value: 24000 },
