@@ -23,6 +23,7 @@ let pCtx = null;
 let drawPlayId = null;
 
 const sampleRateOptions = [
+    { text: '8000', value: 8000 },
     { text: '16000', value: 16000 },
     { text: '22050', value: 22050 },
     { text: '24000', value: 24000 },
@@ -551,6 +552,7 @@ function convertToMp3(wavDataView) {
     // 获取wav头信息
     const wav = lamejs.WavHeader.readHeader(wavDataView); // 此处其实可以不用去读wav头信息，毕竟有对应的config配置
     const { channels, sampleRate } = wav;
+    console.log('wav', wav)
     const mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 128);
     // 获取左右通道数据
     const result = recorder.getChannelData()

@@ -79,7 +79,7 @@ export default class Recorder {
             // 采样数位 8, 16
             sampleBits: ~[8, 16].indexOf(options.sampleBits) ? options.sampleBits : 16,
             // 采样率
-            sampleRate: ~[11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
+            sampleRate: ~[8000, 11025, 16000, 22050, 24000, 44100, 48000].indexOf(options.sampleRate) ? options.sampleRate : this.inputSampleRate,
             // 声道数，1或2
             numChannels: ~[1, 2].indexOf(options.numChannels) ? options.numChannels : 1,
             // 是否需要边录边转，默认关闭，后期使用web worker

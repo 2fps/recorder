@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.6] 2020-04-15
+### Added
++ 增加8000采样率。
+
+## [1.0.5] 2020-04-13
 ### Added
 + 增加`getChannelData`用于获取左右声道的数据，使用[lamejs](https://github.com/zhuker/lamejs)支持mp3音频格式的转化。
 
