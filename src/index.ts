@@ -204,7 +204,7 @@ class Index extends Recorder {
      *
      * @memberof Recorder
      */
-    getRecordAnalyseData() {
+    getRecordAnalyseData(): any {
         return this.getAnalyseData();
     }
 
@@ -213,12 +213,12 @@ class Index extends Recorder {
      *
      * @memberof Recorder
      */
-    getPlayAnalyseData() {
+    getPlayAnalyseData(): any {
         // 现在录音和播放不允许同时进行，所有复用的录音的analyser节点。
         return Player.getAnalyseData();
     }
 
-    getPCM() {
+    getPCM(): any {
         // 先停止
         this.stop();
         // 获取pcm数据
@@ -235,7 +235,7 @@ class Index extends Recorder {
      * @returns { blob }  PCM格式的blob数据
      * @memberof Recorder
      */
-    getPCMBlob() {
+    getPCMBlob(): any {
         return new Blob([ this.getPCM() ]);
     }
 
@@ -257,7 +257,7 @@ class Index extends Recorder {
      * @returns {dataview}  WAV编码的二进制数据
      * @memberof Recorder
      */
-    getWAV() {
+    getWAV(): any {
         let pcmTemp = this.getPCM();
 
         // PCM增加44字节的头就是WAV格式了
@@ -271,7 +271,7 @@ class Index extends Recorder {
      * @returns { blob }    wav格式blob数据
      * @memberof Recorder
      */
-    getWAVBlob() {
+    getWAVBlob(): any {
         return new Blob([ this.getWAV() ], { type: 'audio/wav' });
     }
 
@@ -290,7 +290,7 @@ class Index extends Recorder {
     /**
      * 通用的下载接口
      */
-    download(blob, name: string, type: string) {
+    download(blob, name: string, type: string): void {
         download(blob, name, type);
     }
 
@@ -299,7 +299,7 @@ class Index extends Recorder {
      *
      * @returns [DataView]
      */
-    getChannelData() {
+    getChannelData(): any {
         const all = this.getPCM();
         const length = all.byteLength;
         const littleEdian = this.littleEdian
