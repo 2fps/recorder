@@ -23,7 +23,7 @@ function writeString(data, offset, str): void {
  * 根据输入和输出的采样率压缩数据，
  * 比如输入的采样率是48k的，我们需要的是（输出）的是16k的，由于48k与16k是3倍关系，
  * 所以输入数据中每隔3取1位
- * 
+ *
  * @param {float32array} data       [-1, 1]的pcm数据
  * @param {number} inputSampleRate  输入采样率
  * @param {number} outputSampleRate 输出采样率
@@ -42,9 +42,9 @@ export function compress(data, inputSampleRate: number, outputSampleRate: number
 
     // 循环间隔 compression 位取一位数据
     while (index < length) {
-        // 取整是因为存在比例不是整数的情况
+        // 取整是因为存在比例compression不是整数的情况
         let temp = Math.floor(j);
-        
+
         result[index] = lData[temp];
         index++;
 
@@ -57,7 +57,7 @@ export function compress(data, inputSampleRate: number, outputSampleRate: number
             result[index] = rData[temp];
             index++;
         }
-        
+
         j += compression;
     }
     // 返回压缩后的一维数据
@@ -66,7 +66,7 @@ export function compress(data, inputSampleRate: number, outputSampleRate: number
 
 /**
  * 转换到我们需要的对应格式的编码
- * 
+ *
  * @param {float32array} bytes      pcm二进制数据
  * @param {number}  sampleBits      采样位数
  * @param {boolean} littleEdian     是否是小端字节序
@@ -83,7 +83,7 @@ export function encodePCM(bytes, sampleBits: number, littleEdian: boolean = true
         for (let i = 0; i < bytes.length; i++, offset++) {
             // 范围[-1, 1]
             let s = Math.max(-1, Math.min(1, bytes[i]));
-            // 8位采样位划分成2^8=256份，它的范围是0-255; 
+            // 8位采样位划分成2^8=256份，它的范围是0-255;
             // 对于8位的话，负数*128，正数*127，然后整体向上平移128(+128)，即可得到[0,255]范围的数据。
             let val = s < 0 ? s * 128 : s * 127;
             val = +val + 128;
@@ -104,7 +104,7 @@ export function encodePCM(bytes, sampleBits: number, littleEdian: boolean = true
 /**
  * 编码wav，一般wav格式是在pcm文件前增加44个字节的文件头，
  * 所以，此处只需要在pcm数据前增加下就行了。
- * 
+ *
  * @param {DataView} bytes           pcm二进制数据
  * @param {number}  inputSampleRate  输入采样率
  * @param {number}  outputSampleRate 输出采样率
@@ -147,7 +147,7 @@ export function encodeWAV(bytes: dataview, inputSampleRate: number, outputSample
     writeString(data, offset, 'data'); offset += 4;
     // 采样数据总数,即数据总大小-44
     data.setUint32(offset, bytes.byteLength, littleEdian); offset += 4;
-    
+
     // 给wav头增加pcm体
     for (let i = 0; i < bytes.byteLength;) {
         data.setUint8(offset, bytes.getUint8(i));

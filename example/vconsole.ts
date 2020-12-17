@@ -1,4 +1,4 @@
-import * as VConsole from 'vconsole';
+const VConsole = require('vconsole')
 
 var vConsole = new VConsole();
 
