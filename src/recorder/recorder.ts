@@ -152,6 +152,7 @@ export default class Recorder {
         this.source && this.source.stop();
         this.recorder.disconnect();
         this.analyser.disconnect();
+        this.needRecord = true;
     }
 
     /**
