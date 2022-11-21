@@ -20,7 +20,7 @@ js audio recorder plugin.
 
 ### 在线文档
 
-[文档](http://recorder.api.zhuyuntao.cn/)
+[文档](https://recorder-api.zhuyuntao.cn/)
 
 ### demo使用
 ```
