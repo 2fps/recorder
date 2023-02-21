@@ -79,6 +79,8 @@ declare class Recorder {
     getRecordAnalyseData(): any;
     getPlayAnalyseData(): any;
     getPCMBlob(): any;
+    getWAV(): any;
+    getChannelData(): any;
     downloadPCM(name: string): void;
     getWAVBlob(): any;
     downloadWAV(name: string): void;
